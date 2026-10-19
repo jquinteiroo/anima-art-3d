@@ -16,6 +16,7 @@ button{cursor:pointer}#start{background:#e3bb80;border:0;color:#1b1c1d;font-weig
 .bar{position:absolute;bottom:16px;left:16px;right:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:12px;text-shadow:0 2px 6px black}.bar button{background:#122437dd;color:white;border:1px solid #9db1c8;border-radius:8px;padding:10px}
 .hide{display:none!important}
 @media(max-width:620px){#setup{margin:15px;padding:22px 18px}.preview img{width:35%}.preview strong{font-size:14px}}
+#camera-preview{display:block;width:100%;max-height:290px;background:#000;object-fit:contain;border-radius:10px;margin-top:10px}#camera-test{display:block;width:100%;background:#263b51;color:#e6eff7;border:1px solid #7189a0;border-radius:9px;padding:12px;margin:10px 0}#camera-test:disabled{opacity:.5}.notice{overflow-wrap:anywhere}
 </style>
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","mindar-image-three":"https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"}}</script>
 </head>
@@ -41,11 +42,16 @@ button{cursor:pointer}#start{background:#e3bb80;border:0;color:#1b1c1d;font-weig
   <div id="compile" class="instructions hide">
     <p>1. Abra a <a target="_blank" rel="noopener" href="https://images.metmuseum.org/CRDImages/ep/web-large/DP-42549-001.jpg">imagem acima</a> e salve-a.</p>
     <p>2. Envie esta imagem ao <a target="_blank" rel="noopener" href="https://hiukim.github.io/mind-ar-js-doc/tools/compile/">compilador oficial MindAR ↗</a>; clique em Start e Download.</p>
-    <p>3. Selecione o arquivo <strong>targets.mind</strong> gerado (ou salve-o no projeto como <strong>targets/van-gogh.mind</strong>).</p>
+    <p>3. Para publicar no Netlify, coloque <strong>index.html</strong> e <strong>targets.mind</strong> na mesma pasta. Alternativamente, copie o arquivo .mind para este celular e selecione abaixo.</p>
     <input id="mind-file" type="file" accept=".mind">
   </div>
   <p class="notice" id="status" role="status">Modo oficial pronto para iniciar.</p>
-  <button id="start">Iniciar câmera ↗</button>
+  <button id="camera-test" type="button">1. Testar câmera (sem AR)</button>
+  <div id="camera-preview-wrap" class="hide">
+    <video id="camera-preview" playsinline autoplay muted></video>
+    <p class="notice">Se você vê a imagem ao vivo, a permissão da câmera está funcionando.</p>
+  </div>
+  <button id="start" type="button">2. Iniciar realidade aumentada ↗</button>
   <p class="notice">No celular, hospede o site em <b>HTTPS</b> (ex.: Netlify). A câmera permanece no dispositivo e não é enviada ao backend nesta POC.</p>
 </main>
 <div id="ui" class="hide">
@@ -59,34 +65,58 @@ button{cursor:pointer}#start{background:#e3bb80;border:0;color:#1b1c1d;font-weig
   </div>
   <div class="bar"><span id="track-status">Procurando imagem…</span><button id="stop">Encerrar câmera ✕</button></div>
 </div>
-<script type="module">
-import * as THREE from "three";
-import { MindARThree } from "mindar-image-three";
+<script>
+// Importamos as bibliotecas apenas ao clicar, para que erros de carregamento fiquem visíveis.
+let THREE=null, MindARThree=null;
 const $ = (id) => document.getElementById(id);
 const sampleSrc = "https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.mind";
-let ar = null, running = false, customUrl = null, fileReady = false, starting = false;
+let ar = null, running = false, customUrl = null, starting = false, previewStream=null;
 const isArt = () => $("mode").value === "art";
 function message(t){$("status").textContent=t}
-async function checkTarget(){
- try{const r=await fetch("./targets/van-gogh.mind",{method:"HEAD",cache:"no-store"});fileReady=r.ok}
- catch{fileReady=false}
- refresh();
-}
 function refresh(){
  const art=isArt();
  $("sample").classList.toggle("hide",art);
  $("artwork").classList.toggle("hide",!art);
  $("compile").classList.toggle("hide",!art);
- $("start").disabled=starting||(art&&!customUrl&&!fileReady);
- message(art?(customUrl||fileReady?"Pintura configurada. Inicie a câmera.":"Primeiro compile a pintura e selecione o .mind."): "Modo oficial pronto para iniciar.");
+ $("start").disabled=starting;
+ if (!starting) message(art?
+   (customUrl?"Arquivo .mind selecionado no celular. Pronto para testar.":"Para testar a pintura, publique targets.mind junto do index.html ou selecione-o abaixo."):
+   "Modo oficial pronto. Teste a câmera antes de iniciar a AR.");
 }
-$("mode").addEventListener("change",()=>{refresh();if(isArt()&&!fileReady)void checkTarget()});
+$("mode").addEventListener("change",refresh);
 $("mind-file").addEventListener("change",()=>{
  if(customUrl)URL.revokeObjectURL(customUrl);
  customUrl=null;
  const f=$("mind-file").files[0];
  if(f&&f.name.toLowerCase().endsWith(".mind"))customUrl=URL.createObjectURL(f);
  refresh();
+});
+
+async function stopPreview(){
+ if(previewStream) previewStream.getTracks().forEach(t=>t.stop());
+ previewStream=null;
+ $("camera-preview").srcObject=null;
+ $("camera-preview-wrap").classList.add("hide");
+ $("camera-test").textContent="1. Testar câmera (sem AR)";
+}
+$("camera-test").addEventListener("click",async()=>{
+ if(previewStream){await stopPreview();message("Câmera de teste encerrada.");return}
+ if(!window.isSecureContext||!navigator.mediaDevices?.getUserMedia){
+  message("Câmera indisponível: abra um endereço HTTPS no Safari/Chrome, fora do navegador interno de outros aplicativos.");
+  return;
+ }
+ try{
+  message("Solicitando permissão da câmera...");
+  previewStream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:"environment"}}});
+  $("camera-preview").srcObject=previewStream;
+  $("camera-preview-wrap").classList.remove("hide");
+  $("camera-test").textContent="Fechar teste de câmera";
+  await $("camera-preview").play();
+  message("Câmera funcionando! Feche o teste e inicie a realidade aumentada.");
+ }catch(e){
+  await stopPreview();
+  message("Câmera bloqueada ("+(e?.name||"erro")+"): "+(e?.message||"")+". Verifique a permissão do site nas configurações do navegador.");
+ }
 });
 function decorate(group,height,art){
  const ring=new THREE.Mesh(new THREE.TorusGeometry(.12,.004,8,64),new THREE.MeshBasicMaterial({color:0xffd697}));
@@ -114,7 +144,20 @@ async function start(){
  starting=true;$("start").disabled=true;
  try{
   const art=isArt();
-  ar=new MindARThree({container:$("camera"),imageTargetSrc:art?(customUrl||"./targets/van-gogh.mind"):sampleSrc,uiLoading:"yes",uiScanning:"no"});
+  const source=art?(customUrl||"./targets.mind"):sampleSrc;
+  if(art&&!customUrl){
+    const r=await fetch(source,{cache:"no-store"});
+    const type=(r.headers.get("content-type")||"").toLowerCase();
+    if(!r.ok||type.includes("text/html"))throw new Error("targets.mind não encontrado. No Netlify, publique a pasta contendo index.html e targets.mind lado a lado.");
+  }
+  await stopPreview();
+  message("Carregando bibliotecas MindAR e Three.js...");
+  const [threeModule,mindarModule]=await Promise.all([import("three"),import("mindar-image-three")]);
+  THREE=threeModule;
+  MindARThree=mindarModule.MindARThree;
+  if(typeof MindARThree!=="function")throw new Error("MindAR não carregou. Verifique internet e compatibilidade do navegador.");
+  message("Abrindo câmera e carregando imagem-alvo...");
+  ar=new MindARThree({container:$("camera"),imageTargetSrc:source,uiLoading:"yes",uiScanning:"no"});
   const anchor=ar.addAnchor(0);
   const animate=decorate(anchor.group,art?479/599:.552,art);
   anchor.onTargetFound=()=>{$("details").classList.remove("hide");$("hint").classList.add("hide");$("track-status").textContent="Alvo encontrado — mova o celular lentamente"};
@@ -127,7 +170,7 @@ async function start(){
   $("meta").textContent=art?"Vincent van Gogh · 1889":"Exemplo técnico de image tracking";
   running=true;
  }catch(e){
-  console.error(e);message("Erro ao iniciar: confirme câmera, internet e arquivo .mind. "+(e?.message||""));
+  console.error(e);message("Falha ao iniciar AR ("+(e?.name||"erro")+"): "+(e?.message||"Sem detalhes")+". Se a câmera funcionou no teste, revise o .mind e a conexão com as bibliotecas.");
   try{await ar?.stop()}catch{}
   ar=null;
  }finally{starting=false;$("start").disabled=false}
@@ -150,7 +193,7 @@ $("audio").addEventListener("click",()=>{
  const text=isArt()?"Campo de Trigo com Ciprestes, pintura de Vincent van Gogh de 1889. A experiência utiliza rastreamento de imagem para posicionar elementos virtuais sobre a obra.":"Esta é uma prova de conceito do Anima Art 3D com rastreamento visual do MindAR e animações em Three JS.";
  const utterance=new SpeechSynthesisUtterance(text);utterance.lang="pt-BR";speechSynthesis.speak(utterance);
 });
-window.addEventListener("pagehide",()=>{if(running)void stop()});
+window.addEventListener("pagehide",()=>{if(running)void stop();if(previewStream)void stopPreview()});
 refresh();
 </script>
 </body>
