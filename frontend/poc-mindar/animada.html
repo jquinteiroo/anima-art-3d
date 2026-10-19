@@ -115,6 +115,23 @@ button{cursor:pointer}#start{background:#e3bb80;border:0;color:#1b1c1d;font-weig
 .voice-actions label{font-size:11px;color:#d6e1eb;text-align:right}
 #speech-rate{margin:9px 0 2px}
 .voice-note{color:#b5c7d6!important;font-size:11px!important;line-height:1.45!important}
+
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.hud-lang{flex:none}
+#narration-language{
+ display:block;width:54px;margin:0;padding:7px 4px;
+ background:#263b51;color:#fff;
+ border:1px solid #627c97;border-radius:8px;
+ font-size:12px;font-weight:700;text-align:center;
+ pointer-events:auto
+}
+#fallback-voice{
+ pointer-events:auto;background:#263b51;color:#dce7f1;
+ border:1px solid #627c97;border-radius:8px;
+ padding:8px 11px;font-size:12px
+}
+.voice-heading{font-size:12px!important;color:#e6d19e!important;font-weight:600;margin-bottom:4px!important}
+#details.is-minimized #narration-language{width:49px;padding:5px 2px;font-size:11px}
 </style>
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/","mindar-image-three":"https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"}}</script>
 </head>
@@ -164,6 +181,13 @@ button{cursor:pointer}#start{background:#e3bb80;border:0;color:#1b1c1d;font-weig
         <h2 id="title">Campo de Trigo com Ciprestes</h2>
         <p id="meta">Vincent van Gogh · 1889</p>
       </div>
+      <label class="hud-lang" for="narration-language">
+        <span class="sr-only">Idioma da narração</span>
+        <select id="narration-language" aria-label="Idioma da narração">
+          <option value="pt-BR">PT</option>
+          <option value="en-US">EN</option>
+        </select>
+      </label>
       <button id="minimize-hud" type="button" class="hud-icon" aria-label="Recolher painel" aria-expanded="true" aria-controls="hud-actions">⌄</button>
     </div>
     <div id="hud-actions" class="hud-actions">
@@ -183,16 +207,9 @@ button{cursor:pointer}#start{background:#e3bb80;border:0;color:#1b1c1d;font-weig
       </div>
     </details>
       <div class="voice-controls">
-        <label class="control-label" for="speech-voice">Voz da narração</label>
-        <select id="speech-voice" aria-describedby="voice-note">
-          <option value="default">Voz padrão do aparelho</option>
-        </select>
-        <div class="voice-actions">
-          <button id="voice-preview" type="button">▶ Testar voz</button>
-          <label for="speech-rate">Velocidade <span id="speech-rate-label">0,95×</span></label>
-        </div>
-        <input id="speech-rate" type="range" min="0.75" max="1.2" step="0.05" value="0.95">
-        <p id="voice-note" class="voice-note">As vozes disponíveis dependem do navegador e do aparelho.</p>
+        <p class="voice-heading" id="narrator-label">Narração neural da obra</p>
+        <p id="voice-note" class="voice-note" role="status">Verificando o áudio gravado...</p>
+        <button id="fallback-voice" type="button">Usar voz do aparelho (alternativa)</button>
       </div>
       <p id="animation-status" class="notice">Movimentos experimentais da pintura.</p>
       <label class="control-label" for="motion">Intensidade dos movimentos: <span id="motion-label">70%</span></label>
@@ -499,92 +516,146 @@ async function stop(){
 }
 $("start").addEventListener("click",()=>void start());
 $("stop").addEventListener("click",()=>void stop());
-// O Safari, Chrome e outros navegadores disponibilizam vozes diferentes.
-// Preferimos vozes em português; se nenhuma existir, o sistema decide a voz padrão.
-let availablePortugueseVoices=[];
-let activeSpeech=null;
-let activeSpeechKind=null;
-function updateSpeechButtons(){
- $("audio").textContent=activeSpeechKind==="narration"?"■ Parar áudio":"♫ Ouvir áudio";
- $("audio").setAttribute("aria-pressed",String(activeSpeechKind==="narration"));
- $("voice-preview").textContent=activeSpeechKind==="preview"?"■ Parar teste":"▶ Testar voz";
+
+/* O padrão agora é áudio gravado, sempre igual em qualquer celular.
+   O fallback do sistema só toca se o visitante pedir explicitamente. */
+const NARRATIONS={
+ "pt-BR":{
+  audio:"./audio/van-gogh-pt-BR.mp3",
+  title:"Campo de Trigo com Ciprestes",
+  intro:"Paisagem da Provença pintada em 1889, em que o trigo, os ciprestes e as nuvens parecem ganhar movimento.",
+  text:"Você está diante de Campo de Trigo com Ciprestes, uma pintura a óleo sobre tela realizada por Vincent van Gogh em 1889, durante sua estadia em Saint-Rémy, no sul da França. Observe o campo de trigo dourado no primeiro plano. Ao fundo, colinas azuladas encontram um céu cheio de nuvens sinuosas. À direita, altos ciprestes escuros se destacam na paisagem. As pinceladas curvas e espessas sugerem vento e movimento, como se a própria natureza estivesse viva. Van Gogh considerava esta obra uma de suas melhores paisagens de verão. Atualmente, ela pertence ao Metropolitan Museum of Art, em Nova York.",
+  listen:"♫ Ouvir áudio",stop:"■ Parar áudio",info:"ⓘ Informações",close:"ⓘ Fechar info",hide:"Ocultar",reveal:"ⓘ Informações da obra",
+  about:"Conheça a história da obra",note:"Narração neural pronta para reprodução.",
+  missing:"Áudio neural não encontrado. Gere os MP3s com generate_narrations.py e recarregue a página.",
+  legacy:"Usar voz do aparelho (alternativa)",legacyActive:"■ Parar voz do aparelho",
+  narrator:"Narração neural da obra"
+ },
+ "en-US":{
+  audio:"./audio/van-gogh-en-US.mp3",
+  title:"Wheat Field with Cypresses",
+  intro:"A Provençal landscape painted in 1889, where wheat, cypresses, and clouds seem to come alive.",
+  text:"You are looking at Wheat Field with Cypresses, an oil painting created by Vincent van Gogh in 1889, during his stay in Saint-Rémy, in the south of France. In the foreground, golden wheat ripples across the landscape. Beyond it, blue hills meet a sky filled with swirling clouds. On the right, tall, dark cypress trees rise above the field. With bold, flowing brushstrokes, Van Gogh suggests wind, light, and movement, making the landscape feel alive. He considered this one of his finest paintings of summer in Provence. Today, the original artwork belongs to the Metropolitan Museum of Art in New York.",
+  listen:"♫ Play narration",stop:"■ Stop narration",info:"ⓘ Information",close:"ⓘ Close info",hide:"Hide",reveal:"ⓘ About the artwork",
+  about:"About the artwork",note:"Neural narration ready to play.",
+  missing:"Neural audio not found. Generate the MP3 files with generate_narrations.py, then reload.",
+  legacy:"Use device voice (alternative)",legacyActive:"■ Stop device voice",
+  narrator:"Artwork narration"
+ }
+};
+let narrationAudio=null;
+let narrationSpeech=null;
+let playbackMode=null;
+let playbackGeneration=0;
+const language=()=>NARRATIONS[$("narration-language").value]||NARRATIONS["pt-BR"];
+function syncNarrationButtons(){
+ const words=language();
+ $("audio").textContent=playbackMode==="file"?words.stop:words.listen;
+ $("audio").setAttribute("aria-pressed",String(playbackMode==="file"));
+ $("fallback-voice").textContent=playbackMode==="legacy"?words.legacyActive:words.legacy;
 }
 function cancelSpeech(){
- activeSpeech=null;
- activeSpeechKind=null;
- if(window.speechSynthesis)window.speechSynthesis.cancel();
- updateSpeechButtons();
-}
-function updateAvailableVoices(){
- if(!window.speechSynthesis){
-  $("speech-voice").disabled=true;
-  $("voice-preview").disabled=true;
-  $("voice-note").textContent="Seu navegador não disponibiliza narração sintetizada.";
-  return;
+ playbackGeneration++;
+ if(narrationAudio){
+  narrationAudio.pause();
+  narrationAudio.removeAttribute("src");
+  narrationAudio.load();
+  narrationAudio=null;
  }
- const select=$("speech-voice");
- const oldChoice=select.value;
- const voices=window.speechSynthesis.getVoices().filter(v=>/^pt(?:-|_)/i.test(v.lang))
-   .sort((a,b)=>{
-     const aBR=/^pt[-_]BR$/i.test(a.lang)?0:1;
-     const bBR=/^pt[-_]BR$/i.test(b.lang)?0:1;
-     return aBR-bBR||a.name.localeCompare(b.name,"pt-BR");
-   });
- availablePortugueseVoices=voices;
- select.replaceChildren();
- select.add(new Option("Voz padrão do aparelho","default"));
- voices.forEach((voice,i)=>{
-  select.add(new Option(voice.name+" ("+voice.lang+")"+(voice.localService?" · local":""),String(i)));
- });
- if(Array.from(select.options).some(o=>o.value===oldChoice))select.value=oldChoice;
- $("voice-note").textContent=voices.length
-   ? "Selecione uma voz em português e ouça uma amostra. A lista depende do iPhone/navegador."
-   : "Nenhuma voz alternativa em português foi informada pelo navegador; a voz padrão continua disponível.";
+ if(window.speechSynthesis)window.speechSynthesis.cancel();
+ narrationSpeech=null;
+ playbackMode=null;
+ syncNarrationButtons();
 }
-function speak(kind){
- if(!window.speechSynthesis){alert("Narração não disponível neste navegador.");return;}
- if(activeSpeechKind===kind){cancelSpeech();return;}
+function selectNarrationLanguage(){
  cancelSpeech();
- updateAvailableVoices();
- const synth=window.speechSynthesis;
- const voiceIndex=Number($("speech-voice").value);
- const selectedVoice=$("speech-voice").value==="default"?null:availablePortugueseVoices[voiceIndex];
- const text=kind==="preview"
-  ?"Olá! Esta é uma amostra da voz para apresentar a história da obra Campo de Trigo com Ciprestes."
-  :(isArt()
-    ?"Você está diante de Campo de Trigo com Ciprestes, uma pintura a óleo sobre tela realizada por Vincent van Gogh em 1889, durante sua estadia em Saint-Rémy, no sul da França. Observe o campo de trigo dourado no primeiro plano. Ao fundo, colinas azuladas encontram um céu cheio de nuvens sinuosas. À direita, altos ciprestes escuros se destacam na paisagem. As pinceladas curvas e espessas sugerem vento e movimento, como se a própria natureza estivesse viva. Van Gogh considerava esta obra uma de suas melhores paisagens de verão. Atualmente, ela pertence ao Metropolitan Museum of Art, em Nova York."
-    :"Esta é uma prova de conceito do Anima Art 3D com rastreamento visual do MindAR e animações em Three JS.");
- const utterance=new SpeechSynthesisUtterance(text);
- utterance.lang=selectedVoice?.lang||"pt-BR";
- if(selectedVoice)utterance.voice=selectedVoice;
- utterance.rate=Number($("speech-rate").value);
- activeSpeech=utterance;
- activeSpeechKind=kind;
- updateSpeechButtons();
- const finish=()=>{
-   if(activeSpeech!==utterance)return;
-   activeSpeech=null;
-   activeSpeechKind=null;
-   updateSpeechButtons();
+ const locale=$("narration-language").value;
+ const words=language();
+ document.documentElement.lang=locale;
+ if(isArt())$("title").textContent=words.title;
+ $("work-intro").textContent=words.intro;
+ $("toggle-info").textContent=$("hud-expanded").classList.contains("hide")?words.info:words.close;
+ $("hide-hud").textContent=words.hide;
+ $("hud-reveal").textContent=words.reveal;
+ $("about-work").querySelector("summary").textContent=words.about;
+ $("narrator-label").textContent=words.narrator;
+ $("fallback-voice").textContent=words.legacy;
+ // Assegura que um áudio antigo não continue tocando após a troca de idioma.
+ if(isArt())void checkNarrationAsset();
+}
+async function checkNarrationAsset(){
+ const words=language();
+ const locale=$("narration-language").value;
+ $("voice-note").textContent=locale==="en-US"?"Checking the recorded narration...":"Verificando o áudio gravado...";
+ try{
+  const result=await fetch(words.audio,{method:"HEAD",cache:"no-store"});
+  if(locale===$("narration-language").value){
+   $("voice-note").textContent=result.ok?words.note:words.missing;
+  }
+ }catch{
+  if(locale===$("narration-language").value)$("voice-note").textContent=words.missing;
+ }
+}
+function playRecordedAudio(){
+ if(playbackMode==="file"){cancelSpeech();return;}
+ cancelSpeech();
+ const words=language();
+ const current=++playbackGeneration;
+ const player=new Audio(words.audio);
+ player.preload="auto";
+ narrationAudio=player;
+ playbackMode="file";
+ syncNarrationButtons();
+ player.onended=()=>{
+  if(current===playbackGeneration)cancelSpeech();
  };
+ player.onerror=()=>{
+  if(current!==playbackGeneration)return;
+  cancelSpeech();
+  $("voice-note").textContent=words.missing;
+  setHudMinimized(false);
+  setInfoExpanded(true);
+ };
+ // play é chamado diretamente no clique, para respeitar o Safari do iPhone.
+ const playback=player.play();
+ if(playback&&typeof playback.catch==="function"){
+  playback.catch(()=>{
+   if(current!==playbackGeneration)return;
+   cancelSpeech();
+   $("voice-note").textContent=words.missing;
+   setHudMinimized(false);
+   setInfoExpanded(true);
+  });
+ }
+}
+function playLegacySpeech(){
+ if(!window.speechSynthesis){alert("Speech synthesis is not supported on this device.");return;}
+ if(playbackMode==="legacy"){cancelSpeech();return;}
+ cancelSpeech();
+ const locale=$("narration-language").value;
+ const words=language();
+ const text=isArt()?words.text:(locale==="en-US"
+  ?"This is an Anima Art 3D demonstration with MindAR image tracking and Three.js animations."
+  :"Esta é uma demonstração do Anima Art 3D com rastreamento MindAR e animações Three.js.");
+ const utterance=new SpeechSynthesisUtterance(text);
+ utterance.lang=locale;
+ utterance.rate=0.95;
+ const voices=window.speechSynthesis.getVoices().filter(v=>v.lang.toLowerCase()===locale.toLowerCase());
+ if(voices.length)utterance.voice=voices.find(v=>/premium|enhanced|natural/i.test(v.name))||voices[0];
+ const current=++playbackGeneration;
+ narrationSpeech=utterance;
+ playbackMode="legacy";
+ syncNarrationButtons();
+ const finish=()=>{if(current===playbackGeneration)cancelSpeech();};
  utterance.onend=finish;
  utterance.onerror=finish;
- try{synth.speak(utterance);}catch(e){finish();console.error(e);alert("Não foi possível iniciar a voz neste navegador.");}
+ try{window.speechSynthesis.speak(utterance);}catch{finish();}
 }
-$("audio").addEventListener("click",()=>speak("narration"));
-$("voice-preview").addEventListener("click",()=>speak("preview"));
-$("speech-voice").addEventListener("change",cancelSpeech);
-$("speech-rate").addEventListener("input",()=>{
- $("speech-rate-label").textContent=Number($("speech-rate").value).toFixed(2).replace(".",",")+"×";
-});
-if(window.speechSynthesis){
- updateAvailableVoices();
- if(typeof window.speechSynthesis.addEventListener==="function"){
-  window.speechSynthesis.addEventListener("voiceschanged",updateAvailableVoices);
- }else{
-  window.speechSynthesis.onvoiceschanged=updateAvailableVoices;
- }
-}
+$("audio").addEventListener("click",()=>isArt()?playRecordedAudio():playLegacySpeech());
+$("fallback-voice").addEventListener("click",playLegacySpeech);
+$("narration-language").addEventListener("change",selectNarrationLanguage);
+syncNarrationButtons();
+
 window.addEventListener("pagehide",()=>{cancelSpeech();clearHudTimer();if(running)void stop();if(previewStream)void stopPreview()});
 refresh();
 </script>
