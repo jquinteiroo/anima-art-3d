@@ -45,6 +45,17 @@ A demo original `index.html` permanece sem alterações. Esta atualização modi
 
 No clone local, rode `git pull origin master`; com os terminais Python e Cloudflare Tunnel ativos, recarregue `/animada.html` no navegador do celular. Caso o Safari use cache, feche a aba e abra novamente a URL.
 
+## Escolha de voz e velocidade (pintura animada)
+
+Na versão `animada.html`, ao encontrar a pintura, abra a HUD e toque em **Informações**. A seção oferece:
+
+- **Voz da narração:** lista as vozes em português disponibilizadas pelo navegador/dispositivo via `speechSynthesis.getVoices()`;
+- **Testar voz:** reproduz uma frase curta com a voz e a velocidade selecionadas;
+- **Velocidade:** ajuste entre 0,75× e 1,20×;
+- **Ouvir áudio:** reproduz ou interrompe a narração completa conforme os ajustes.
+
+A atualização mantém o reconhecimento de imagem e as animações inalterados. As opções são carregadas quando o navegador as disponibiliza e podem variar entre Safari no iPhone, Chrome e outros dispositivos. A seleção de voz do sistema **não garante locução profissional**: se nenhuma alternativa em português estiver disponível, continua sendo usada a voz padrão. Para produção em museus, avaliar gravações narradas ou áudio TTS de qualidade superior pré-gerado e revisado.
+
 ## Se a câmera não abre
 
 ### O botão "Testar câmera" não mostra imagem
