@@ -56,6 +56,45 @@ Na versão `animada.html`, ao encontrar a pintura, abra a HUD e toque em **Infor
 
 A atualização mantém o reconhecimento de imagem e as animações inalterados. As opções são carregadas quando o navegador as disponibiliza e podem variar entre Safari no iPhone, Chrome e outros dispositivos. A seleção de voz do sistema **não garante locução profissional**: se nenhuma alternativa em português estiver disponível, continua sendo usada a voz padrão. Para produção em museus, avaliar gravações narradas ou áudio TTS de qualidade superior pré-gerado e revisado.
 
+## Narração bilíngue com vozes neurais (versão `animada.html`)
+
+**Arquitetura:** o site não tenta instalar vozes no iPhone. Em vez disso, reproduz dois MP3s locais, garantindo o mesmo timbre no Safari, Chrome e em outros aparelhos. O idioma padrão é **PT-BR**, com botão **PT / EN** na própria HUD; as descrições principais também são traduzidas para inglês.
+
+### Vozes selecionadas
+
+| Idioma | Voz padrão | Arquivo |
+|---|---|---|
+| Português brasileiro | `pt-BR-FranciscaNeural` | `audio/van-gogh-pt-BR.mp3` |
+| Inglês americano | `en-US-JennyNeural` | `audio/van-gogh-en-US.mp3` |
+
+**Os MP3s não estão incluídos inicialmente no repositório.** Após clonar ou puxar as alterações, gere-os uma vez no Windows. O script usa o pacote Python [edge-tts](https://github.com/rany2/edge-tts), que acessa **online** o serviço de voz do Microsoft Edge. Não exige chave de API, mas não é uma API oficial com garantias de disponibilidade para um produto em produção.
+
+Abra um terminal PowerShell:
+
+```powershell
+cd "$env:USERPROFILE\Documents\GitHub\anima-art-3d\anima-art-3d-repo"
+git pull origin master
+cd frontend\poc-mindar
+py -m pip install edge-tts
+py generate_narrations.py
+```
+
+Se `py` não for reconhecido, substitua por `python`.
+
+Após ver `Narrações prontas`, confirme que `audio/van-gogh-pt-BR.mp3` e `audio/van-gogh-en-US.mp3` existem e reinicie/recarregue `animada.html`. Não precisa recriar `targets.mind`. Os arquivos permanecerão disponíveis offline no servidor local depois da geração.
+
+Para **enviar também os áudios ao repositório** (e levá-los ao Netlify ou outra hospedagem), execute a partir da raiz do clone:
+
+```powershell
+git add frontend/poc-mindar/audio/van-gogh-pt-BR.mp3 frontend/poc-mindar/audio/van-gogh-en-US.mp3
+git commit -m "assets: adiciona narracoes neurais PT-BR e EN"
+git push origin master
+```
+
+Se o áudio ainda não foi gerado, tocar em **Ouvir áudio** mostra uma mensagem de arquivo ausente em vez de reproduzir automaticamente a voz robótica. Há uma opção explícita **Usar voz do aparelho (alternativa)** para testes sem os MP3s.
+
+Os roteiros, nomes dos arquivos e vozes de geração ficam em [`audio/narrations.json`](audio/narrations.json). Para trocar as vozes, edite as entradas `voice`, execute `py generate_narrations.py` novamente, ou use um TTS profissional pago que entregue os MP3s nos mesmos caminhos. A solução de protótipo via `edge-tts` não deve ser tratada como licença ou garantia de serviço para um produto comercial: nesse caso, use um provedor oficial com direitos de uso documentados. A narração utiliza voz sintética e isso deve estar informado na aplicação.
+
 ## Se a câmera não abre
 
 ### O botão "Testar câmera" não mostra imagem
