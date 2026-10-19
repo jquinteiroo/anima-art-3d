@@ -29,6 +29,22 @@ O arquivo `targets.mind` é **binário** e não é gerado automaticamente pela p
 
 **Alternativa:** sem publicar o `targets.mind`, escolha-o no seletor de arquivo dentro do modo Van Gogh **no próprio celular**. Para isso, o arquivo deve ter sido copiado para o armazenamento do telefone.
 
+## HUD compacta — animada.html
+
+A versão `animada.html` utiliza uma interface otimizada para observar a pintura:
+
+- **Ao encontrar o alvo:** aparece um painel pequeno com status, título e botões de informações, áudio e ocultar.
+- **Após 3 segundos:** o painel recolhe automaticamente para mostrar mais da obra, desde que o usuário não tenha aberto as informações.
+- **Seta do painel:** expande ou recolhe manualmente; a interação cancela o recolhimento automático.
+- **Informações:** abre a descrição e a história da obra, o controle de intensidade e o botão para pausar/retomar o shader.
+- **Ouvir áudio:** inicia ou encerra a narração sintetizada em português.
+- **Ocultar:** esconde o painel; o botão discreto **Informações da obra** permite restaurá-lo.
+- **Alvo perdido:** os controles referentes à obra são ocultados; reaparecem quando o rastreamento é recuperado.
+
+A demo original `index.html` permanece sem alterações. Esta atualização modifica apenas a apresentação da versão artística: **não exige recompilar `targets.mind` nem alterar `painting.jpg`**.
+
+No clone local, rode `git pull origin master`; com os terminais Python e Cloudflare Tunnel ativos, recarregue `/animada.html` no navegador do celular. Caso o Safari use cache, feche a aba e abra novamente a URL.
+
 ## Se a câmera não abre
 
 ### O botão "Testar câmera" não mostra imagem
