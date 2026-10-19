@@ -4,7 +4,7 @@ Projeto de estágio obrigatório do curso de **Ciência da Computação — PUC 
 
 **Aluno:** João Eduardo Lino Quinteiro  
 **Orientador:** Prof. Will Machado  
-**Status:** planejamento técnico e desenvolvimento da primeira prova de conceito
+**Status:** primeira prova de conceito WebAR validada funcionalmente em celular (relato do aluno); reconhecimento ORB/MobileNetV2 ainda em desenvolvimento
 
 ---
 
@@ -14,10 +14,12 @@ A primeira prova de conceito do rastreamento AR está disponível em **[frontend
 
 - [Abrir código da demo](frontend/poc-mindar/index.html)
 - [Instruções para testar no celular](frontend/poc-mindar/README.md)
+- [Registro do primeiro teste funcional](docs/anotacoes/teste-poc-mindar-2026-10-18.md)
+- [Abrir demonstração hospedada no Netlify](https://velvety-tartufo-c73884.netlify.app/)
 - Teste imediato com alvo pré-compilado do MindAR.
 - Modo com **Campo de Trigo com Ciprestes**, de Vincent van Gogh (1889), após compilar a imagem no MindAR.
 - Objeto tridimensional, traços animados ancorados à imagem, evento de alvo encontrado/perdido e narração demonstrativa.
-- **Status:** código disponibilizado; testes em smartphone real e compilação do alvo da pintura ainda precisam ser realizados.
+- **Status:** demonstração publicada no Netlify e testada no celular. Câmera, conteúdo AR, narração e ancoragem estável à imagem foram confirmados pelo aluno; faltam avaliação quantitativa e registro do dispositivo.
 
 > Esta POC isola apenas rastreamento de imagem + renderização. A comparação ORB/MobileNetV2 continua sendo a etapa experimental separada do estágio.
 
