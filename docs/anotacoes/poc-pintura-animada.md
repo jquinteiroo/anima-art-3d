@@ -1,8 +1,40 @@
 # Experimento: pintura animada com Three.js + MindAR
 
-**Estado:** implementação disponibilizada; ainda requer validação em smartphone.  
+**Estado:** teste qualitativo executado em iPhone/Safari; rastreamento ativo e controles visíveis no vídeo. Ainda sem avaliação quantitativa.  
 **Arquivo da experiência:** [animada.html](../../frontend/poc-mindar/animada.html)  
 **Demo original, já validada pelo aluno:** [index.html](../../frontend/poc-mindar/index.html)
+
+## Resultado do teste com usuário — 18/10/2026
+
+O aluno enviou uma captura da tela e um vídeo de aproximadamente 18 segundos gravado no iPhone/Safari, executando a demo da pintura animada por meio de túnel HTTPS Cloudflare local.
+
+### O que a evidência visual mostra
+
+- o MindAR encontra a obra e mantém a cena ancorada;
+- o painel informa rastreamento ativo;
+- o objeto circular tridimensional gira sobre a pintura;
+- o controle de intensidade é alterado durante a gravação (85%, 80%, 35%, e novamente 85%);
+- o plano e os recursos AR seguem disponíveis durante a filmagem.
+
+### Limitações visuais observadas
+
+- o anel e o objeto marrom giratório aparentam ser placeholders técnicos e competem com a pintura;
+- a forma geométrica verde sobre o cipreste não preserva a estética da obra;
+- a deformação da textura é sutil demais para demonstrar inequivocamente o movimento do céu/trigo somente nesse registro;
+- o painel informativo ocupa parte substancial da altura do smartphone, ocultando boa parte da experiência artística.
+
+Essas observações são **qualitativas**, baseadas na gravação, e não constituem medição de FPS nem confirmação de que cada máscara/shader está calibrado corretamente.
+
+### Ajustes recomendados para a próxima iteração
+
+1. Preservar a POC original funcional e adicionar uma nova variante visual em vez de sobrescrever o teste já validado.
+2. Remover os placeholders visuais (anel, esfera, cipreste geométrico) da versão artística.
+3. Reduzir/recolher o painel durante o rastreamento, mantendo uma opção acessível para abrir informações, áudio e controles.
+4. Preparar camadas PNG transparentes com segmentação real (céu, ciprestes, trigo), incluindo preenchimento/inpainting do fundo onde for necessário.
+5. Animar as camadas com deslocamentos leves e independentes, alinhadas às coordenadas do target do MindAR.
+6. Validar o movimento comparando antes/depois no mesmo enquadramento e registrar vídeo demonstrativo com a maior parte da pintura visível.
+
+---
 
 ## Objetivo
 
