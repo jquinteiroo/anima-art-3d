@@ -16,6 +16,8 @@ A primeira prova de conceito do rastreamento AR está disponível em **[frontend
 - [Instruções para testar no celular](frontend/poc-mindar/README.md)
 - [Registro do primeiro teste funcional](docs/anotacoes/teste-poc-mindar-2026-10-18.md)
 - [Abrir demonstração hospedada no Netlify](https://velvety-tartufo-c73884.netlify.app/)
+- **Nova experiência experimental:** [pintura animada — `animada.html`](frontend/poc-mindar/animada.html) (requer novo deploy no Netlify).
+- [Como publicar, testar e avaliar a animação](docs/anotacoes/poc-pintura-animada.md) — shader para céu, trigo e ciprestes; teste no celular ainda pendente.
 - Teste imediato com alvo pré-compilado do MindAR.
 - Modo com **Campo de Trigo com Ciprestes**, de Vincent van Gogh (1889), após compilar a imagem no MindAR.
 - Objeto tridimensional, traços animados ancorados à imagem, evento de alvo encontrado/perdido e narração demonstrativa.
