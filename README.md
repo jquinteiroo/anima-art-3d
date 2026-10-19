@@ -8,6 +8,21 @@ Projeto de estágio obrigatório do curso de **Ciência da Computação — PUC 
 
 ---
 
+## Demonstração WebAR — MindAR + Three.js
+
+A primeira prova de conceito do rastreamento AR está disponível em **[frontend/poc-mindar](frontend/poc-mindar/README.md)**.
+
+- [Abrir código da demo](frontend/poc-mindar/index.html)
+- [Instruções para testar no celular](frontend/poc-mindar/README.md)
+- Teste imediato com alvo pré-compilado do MindAR.
+- Modo com **Campo de Trigo com Ciprestes**, de Vincent van Gogh (1889), após compilar a imagem no MindAR.
+- Objeto tridimensional, traços animados ancorados à imagem, evento de alvo encontrado/perdido e narração demonstrativa.
+- **Status:** código disponibilizado; testes em smartphone real e compilação do alvo da pintura ainda precisam ser realizados.
+
+> Esta POC isola apenas rastreamento de imagem + renderização. A comparação ORB/MobileNetV2 continua sendo a etapa experimental separada do estágio.
+
+---
+
 ## Visão geral
 
 O projeto propõe um guia web para dispositivos móveis capaz de reconhecer obras de arte pela câmera do celular e, após a identificação, apresentar informações, áudio e uma experiência de realidade aumentada associada à obra.
