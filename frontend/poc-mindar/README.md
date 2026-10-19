@@ -1,68 +1,67 @@
-# Prova de conceito: MindAR + Three.js com pintura
+# Demo MindAR — publicação e teste no celular
 
-Esta pasta contém um experimento **executável em navegador**, independente do backend e do frontend Vue, para demonstrar **rastreamento de imagem e conteúdo AR ancorado**. É um marco técnico do projeto Anima Art 3D, e não a aplicação integrada final.
+Esta é uma prova de conceito de **image tracking + conteúdo 3D**. O projeto principal está em [Anima Art 3D](../../README.md).
 
-**Código:** [index.html](index.html)
+A demo tem **dois modos**:
+- **Alvo oficial MindAR:** já possui um `.mind` hospedado na documentação do projeto e permite testar imediatamente.
+- **Van Gogh — Campo de Trigo com Ciprestes:** exige o arquivo `targets.mind` compilado a partir da pintura escolhida.
 
-## Teste imediato (sem compilar imagens)
+## Publicação correta no Netlify
 
-1. Publique **esta pasta** em uma hospedagem HTTPS (por exemplo, [Netlify Drop](https://app.netlify.com/drop)). No computador, também é possível servir com `python -m http.server 8080` dentro desta pasta e acessar `http://localhost:8080`.
-2. Abra a página no **celular** via URL HTTPS.
-3. Deixe selecionado **Alvo oficial do MindAR**.
-4. Abra a [imagem-alvo oficial](https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.png) em um **segundo monitor/tablet** ou imprima.
-5. Toque em **Iniciar câmera**, permita o acesso à câmera e aponte para a imagem.
-6. Confira se uma moldura, um objeto dourado tridimensional e partículas/traços animados aparecem sobre a imagem e **acompanham o alvo**. O painel de identificação e a narração também ficam disponíveis.
+Crie uma pasta no computador (por exemplo `mindar-demo`) com **dois arquivos na raiz**:
 
-O teste oficial serve para verificar câmera e tracking **antes** de introduzir uma pintura personalizada.
+```text
+mindar-demo/
+├── index.html
+└── targets.mind
+```
 
-## Teste com uma obra de arte real
+1. Baixe o [index.html atualizado](index.html) deste repositório pelo botão **Raw → salvar arquivo** (ou clone o repositório e copie `frontend/poc-mindar/index.html`).
+2. Coloque o arquivo **`targets.mind` que você compilou** ao lado do `index.html`, mantendo exatamente esse nome.
+3. Em [Netlify Drop](https://app.netlify.com/drop), arraste **a pasta inteira** `mindar-demo`, não um arquivo isolado.
+4. Se já tiver um site Netlify criado, abra seu projeto em **Deploys** e arraste a pasta atualizada para a área de deploy manual.
+5. Abra a URL **https://...netlify.app** em **Chrome no Android ou Safari no iPhone**, preferencialmente fora de WhatsApp/Instagram.
+6. Toque primeiro em **Testar câmera (sem AR)**. Autorize a câmera; deve aparecer uma imagem ao vivo.
+7. Encerre esse teste e selecione **Van Gogh — obra real**. Toque em **Iniciar realidade aumentada**.
+8. Abra [a mesma imagem exata da pintura](https://images.metmuseum.org/CRDImages/ep/web-large/DP-42549-001.jpg) em um monitor ou imprima. Aponte a câmera para ela.
 
-Obra selecionada: **Campo de Trigo com Ciprestes (Wheat Field with Cypresses)** — Vincent van Gogh, 1889. [Registro oficial no Metropolitan Museum of Art](https://www.metmuseum.org/art/collection/search/436535); obra em domínio público conforme a API do Met (`isPublicDomain: true`).
+O arquivo `targets.mind` é **binário** e não é gerado automaticamente pela página. Ele deve resultar do [compilador oficial MindAR](https://hiukim.github.io/mind-ar-js-doc/tools/compile/) utilizando a imagem acima.
 
-1. Baixe **esta versão exata** da pintura, sem recorte:  
-   https://images.metmuseum.org/CRDImages/ep/web-large/DP-42549-001.jpg
-2. Abra o **[compilador de imagens do MindAR](https://hiukim.github.io/mind-ar-js-doc/tools/compile/)**.
-3. Envie a imagem JPG. Clique em **Start** e em **Download** para obter `targets.mind`. Observe se os pontos de interesse são numerosos e bem distribuídos.
-4. Na demo, escolha **Van Gogh — obra real** e selecione esse `targets.mind` no campo de arquivo.
-5. Abra **a mesma imagem utilizada na compilação**, em outro monitor/tablet, ou imprima. Não use outras versões da pintura, já que apresentam diferenças visuais.
-6. Inicie a câmera, aponte para a reprodução e movimente suavemente o celular.
+**Alternativa:** sem publicar o `targets.mind`, escolha-o no seletor de arquivo dentro do modo Van Gogh **no próprio celular**. Para isso, o arquivo deve ter sido copiado para o armazenamento do telefone.
 
-Opcional: salve o arquivo compilado em **`frontend/poc-mindar/targets/van-gogh.mind`**; a página tentará detectá-lo automaticamente, dispensando a escolha manual do arquivo. Como o arquivo binário depende da compilação da imagem, ele ainda **não foi incluído no repositório**.
+## Se a câmera não abre
 
-## Como demonstrar ao professor
+### O botão "Testar câmera" não mostra imagem
 
-- O usuário inicia o rastreamento voluntariamente e concede a permissão da câmera.
-- O MindAR localiza **a imagem-alvo previamente compilada** e estima sua pose na câmera.
-- O Three.js mostra uma moldura, efeitos visuais e um objeto animado **presos ao alvo**.
-- Os efeitos acompanham a inclinação e os movimentos do celular.
-- Ao perder a obra de vista, o painel de reconhecimento desaparece; quando o alvo volta, reaparece.
-- Existe botão de narração com voz sintetizada (Web Speech API do navegador).
+- Verifique se a URL começa com **https://**.
+- Permita a câmera nas permissões do navegador/site (no iPhone, Safari → Configurações do Site → Câmera; no Android, confira as permissões do Chrome).
+- Abra em Safari/Chrome, não em um navegador interno de rede social.
+- Feche outros apps que estejam usando a câmera.
+- Veja a mensagem de erro na própria página.
 
-## O que esta POC não faz
+### A câmera funciona, mas a AR não inicia
 
-- **Não** compara ORB e MobileNetV2 (será implementado em outra etapa).
-- **Não** identifica pinturas arbitrárias. Ela rastreia somente o alvo visual do arquivo `.mind`.
-- **Não** produz modelos 3D realistas de personagens ou cavalos. O objeto atual é geometria procedural do Three.js.
-- **Não** constitui holograma ou projeção no ambiente físico: a sobreposição aparece **na tela do celular**.
-- **Não** representa uma validação física concluída: ainda é necessário testar em smartphone(s) reais, registrar dispositivo, navegador, condições de luz e eventuais falhas.
+- Confirme que `https://SEU-SITE.netlify.app/targets.mind` abre/baixa o arquivo em vez de mostrar **404** ou uma página HTML. Esse URL é apenas um exemplo; substitua pelo domínio real.
+- Use o arquivo da mesma imagem da pintura exibida em outro monitor.
+- Confirme conexão com a internet: MindAR e Three.js são carregados por CDNs.
+- Em caso de erro, copie a mensagem mostrada abaixo dos botões e informe o modelo do celular/navegador.
 
-## Requisitos e solução de problemas
+### A câmera abre, mas não encontra a obra
 
-- **Celular:** use uma URL **HTTPS**. Uma URL HTTP para IP local (ex.: `http://192.168.0.10`) normalmente **não** disponibiliza `getUserMedia`. `localhost` é exceção segura para o próprio dispositivo.
-- **Internet:** o código importa as versões fixadas MindAR 1.2.5 e Three.js 0.160.0 por CDN.
-- **Arquivo-alvo:** um `.mind` é obrigatório para **cada imagem ou conjunto de imagens que será rastreado**; o exemplo oficial já fornece um arquivo pronto.
-- **Falha de reconhecimento:** confirme que a mesma versão da imagem foi compilada e exibida, aumente a luminosidade e evite reflexos.
-- **Som:** a narração é sintetizada pelo navegador e pode variar conforme aparelho/idioma instalado.
-- **Teste em tela única:** a câmera do celular precisa apontar para outra tela, projeção impressa ou obra física; não pode apontar para a pintura exibida na própria tela do mesmo celular.
+- Teste o **alvo oficial MindAR** primeiro para separar falha de tracking de problema na pintura.
+- Use a imagem exata utilizada no compilador, sem bordas/cortes.
+- Evite reflexos, melhore a iluminação e ajuste a distância.
+- Confira se o `.mind` foi compilado com **apenas esta imagem** ou se ela é o **primeiro alvo** (índice 0).
 
-## Referências técnicas
+## Sobre a demonstração
 
-- [MindAR — Three.js Image Tracking](https://hiukim.github.io/mind-ar-js-doc/more-examples/threejs-image/)
-- [MindAR — Compilação de targets](https://hiukim.github.io/mind-ar-js-doc/quick-start/compile/)
-- [Three.js — documentação](https://threejs.org/docs/)
-- [MDN — getUserMedia](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia)
-- [The Met — Open Access](https://www.metmuseum.org/hubs/open-access)
+Quando a imagem é encontrada, o Three.js desenha uma moldura, elementos visuais animados e um objeto dourado 3D alinhados ao target. Um painel e a narração demonstrativa também são habilitados.
 
-## Próximo passo
+**O que ainda não está incluído:** reconhecimento ORB/MobileNetV2, animação realista do cavalo, cenário 2.5D completo e testes de desempenho validados em smartphone. Esta POC prova apenas rastreamento espacial e renderização AR.
 
-Concluir o primeiro teste **no celular** e registrar um vídeo curto do alvo encontrado, de um movimento lateral com tracking estável, da perda do alvo e de sua recuperação. Depois, inserir o reconhecimento ORB/MobileNetV2 e substituir o objeto procedural por um asset GLB da obra escolhida.
+## Fontes
+
+- [MindAR — instalação e import map](https://hiukim.github.io/mind-ar-js-doc/installation/)
+- [MindAR — compilação de imagens](https://hiukim.github.io/mind-ar-js-doc/quick-start/compile/)
+- [MindAR — Three.js](https://hiukim.github.io/mind-ar-js-doc/more-examples/threejs-image/)
+- [Netlify — drag and drop](https://docs.netlify.com/deploy/create-deploys/)
