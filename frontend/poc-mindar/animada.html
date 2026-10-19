@@ -497,7 +497,7 @@ async function start(){
   ar.renderer.setAnimationLoop(()=>{const time=clock.getElapsedTime();animate(time);animatePainting(time);ar.renderer.render(ar.scene,ar.camera)});
   $("setup").classList.add("hide");$("ui").classList.remove("hide");
   $("title").textContent=art?language().title:"Alvo oficial do MindAR";
-  $("meta").textContent=art?"Vincent van Gogh · 1889 · Óleo sobre tela":"Exemplo técnico de image tracking";
+  $("meta").textContent=art?($("narration-language").value==="en-US"?"Vincent van Gogh · 1889 · Oil on canvas":"Vincent van Gogh · 1889 · Óleo sobre tela"):"Exemplo técnico de image tracking";
   $("work-intro").classList.toggle("hide",!art);
   $("about-work").classList.toggle("hide",!art);
   $("about-work").open=false;
@@ -532,7 +532,7 @@ const NARRATIONS={
   intro:"Paisagem da Provença pintada em 1889, em que o trigo, os ciprestes e as nuvens parecem ganhar movimento.",
   text:"Você está diante de Campo de Trigo com Ciprestes, uma pintura a óleo sobre tela realizada por Vincent van Gogh em 1889, durante sua estadia em Saint-Rémy, no sul da França. Observe o campo de trigo dourado no primeiro plano. Ao fundo, colinas azuladas encontram um céu cheio de nuvens sinuosas. À direita, altos ciprestes escuros se destacam na paisagem. As pinceladas curvas e espessas sugerem vento e movimento, como se a própria natureza estivesse viva. Van Gogh considerava esta obra uma de suas melhores paisagens de verão. Atualmente, ela pertence ao Metropolitan Museum of Art, em Nova York.",
   listen:"♫ Ouvir áudio",stop:"■ Parar áudio",info:"ⓘ Informações",close:"ⓘ Fechar info",hide:"Ocultar",reveal:"ⓘ Informações da obra",
-  about:"Conheça a história da obra",note:"Narração neural pronta para reprodução.",
+  about:"Conheça a história da obra",note:"Áudio com voz sintética neural, pronto para reprodução.",
   missing:"Áudio neural não encontrado. Gere os MP3s com generate_narrations.py e recarregue a página.",
   legacy:"Usar voz do aparelho (alternativa)",legacyActive:"■ Parar voz do aparelho",
   narrator:"Narração neural da obra"
@@ -543,7 +543,7 @@ const NARRATIONS={
   intro:"A Provençal landscape painted in 1889, where wheat, cypresses, and clouds seem to come alive.",
   text:"You are looking at Wheat Field with Cypresses, an oil painting created by Vincent van Gogh in 1889, during his stay in Saint-Rémy, in the south of France. In the foreground, golden wheat ripples across the landscape. Beyond it, blue hills meet a sky filled with swirling clouds. On the right, tall, dark cypress trees rise above the field. With bold, flowing brushstrokes, Van Gogh suggests wind, light, and movement, making the landscape feel alive. He considered this one of his finest paintings of summer in Provence. Today, the original artwork belongs to the Metropolitan Museum of Art in New York.",
   listen:"♫ Play narration",stop:"■ Stop narration",info:"ⓘ Information",close:"ⓘ Close info",hide:"Hide",reveal:"ⓘ About the artwork",
-  about:"About the artwork",note:"Neural narration ready to play.",
+  about:"About the artwork",note:"AI-generated neural narration ready to play.",
   missing:"Neural audio not found. Generate the MP3 files with generate_narrations.py, then reload.",
   legacy:"Use device voice (alternative)",legacyActive:"■ Stop device voice",
   narrator:"Artwork narration"
@@ -578,7 +578,10 @@ function selectNarrationLanguage(){
  const locale=$("narration-language").value;
  const words=language();
  document.documentElement.lang=locale;
- if(isArt())$("title").textContent=words.title;
+ if(isArt()){
+  $("title").textContent=words.title;
+  $("meta").textContent=locale==="en-US"?"Vincent van Gogh · 1889 · Oil on canvas":"Vincent van Gogh · 1889 · Óleo sobre tela";
+ }
  $("work-intro").textContent=words.intro;
  $("toggle-info").textContent=$("hud-expanded").classList.contains("hide")?words.info:words.close;
  $("hide-hud").textContent=words.hide;
