@@ -53,6 +53,17 @@ O arquivo `targets.mind` é **binário** e não é gerado automaticamente pela p
 - Evite reflexos, melhore a iluminação e ajuste a distância.
 - Confira se o `.mind` foi compilado com **apenas esta imagem** ou se ela é o **primeiro alvo** (índice 0).
 
+## Informações da obra e audiodescrição
+
+Tanto a demonstração estável (`index.html`) quanto a versão com pintura animada (`animada.html`) incluem, no modo **Van Gogh**:
+
+- resumo histórico na tela (obra, artista e técnica);
+- seção expansível **Conheça a história da obra**, com descrição do campo, céu, ciprestes, pinceladas e contexto de Saint-Rémy;
+- narração em português pela Web Speech API, com botão para iniciar ou parar;
+- referência ao registro oficial do [Metropolitan Museum of Art](https://www.metmuseum.org/art/collection/search/436535).
+
+As informações foram redigidas a partir do registro curatorial público do Met. A narração é produzida pelo navegador (voz sintética, que varia conforme o dispositivo), e não por áudio oficial do museu.
+
 ## Sobre a demonstração
 
 Quando a imagem é encontrada, o Three.js desenha uma moldura, elementos visuais animados e um objeto dourado 3D alinhados ao target. Um painel e a narração demonstrativa também são habilitados.
