@@ -8,7 +8,11 @@ A demo tem **dois modos**:
 
 ## Galeria Virtual AR (nova página inicial)
 
-**Status:** a interface da galeria com quatro obras, animação de entrada, câmera MindAR multi-alvo e HUD dinâmica está implementada. Para reconhecer **todas** as obras ao apontar a câmera, ainda precisa gerar e testar o arquivo **`galeria-targets.mind` com os quatro alvos**. Até lá, a câmera pode funcionar em modo de demonstração apenas com Van Gogh usando `targets.mind`. A galeria visual funciona mesmo sem o multi-alvo.
+**Status em 23/10/2026:** três alvos novos foram compilados e entregues pelo usuário, validados como arquivo MindAR v2 e incluídos no repositório em `galeria-targets-novas.mind`. São **Grande Onda, Aula de Dança e Íris**, nessa ordem, confirmadas visualmente a partir dos dados de rastreamento do arquivo. O quarto quadro, **Campo de Trigo com Ciprestes**, continua usando o antigo `targets.mind` no computador do usuário.
+
+A galeria agora oferece um seletor de câmera: **três obras novas** (funcionam juntas com o arquivo já incluído no GitHub) ou **Van Gogh 3D** (requer o antigo `targets.mind` local). Também existe um script para **unir os dois arquivos em um único `galeria-targets.mind` de quatro alvos**. Se o arquivo completo existir, a câmera passa a reconhecer os quatro na mesma sessão.
+
+A interface com cartões animados, câmera MindAR e HUD diferente para cada obra foi implementada, mas ainda falta **validar o rastreamento no iPhone**.
 
 ### Jornada do visitante
 
@@ -16,7 +20,7 @@ A demo tem **dois modos**:
 2. Ver a abertura **“Galeria virtual de realidade aumentada”** com botão **Iniciar experiência**.
 3. Ao tocar **Iniciar**, as quatro obras aparecem em cards com animação de entrada.
 4. O visitante pode conhecer o contexto de cada quadro ou tocar **Abrir câmera AR**.
-5. Com o arquivo multi-alvo correto, o MindAR detecta qual das quatro imagens está no enquadramento e mostra a HUD **daquela obra**, com artista, ano, história e escolha de idioma PT/EN.
+5. Com os alvos novos já incluídos no GitHub, o MindAR detecta **Grande Onda, Aula de Dança ou Íris** e mostra a HUD correta, com artista, ano, história e idioma PT/EN. Para reconhecer as quatro obras sem trocar o modo da câmera, gere o arquivo combinado.
 6. O primeiro Van Gogh usa o relevo real `models/van_gogh_relevo_mobile.glb`; as outras três têm efeitos de rastreamento/partículas e moldura AR iniciais, **não são modelos 3D completos ainda**. A HUD se recolhe automaticamente, e o visitante pode reabrir.
 
 ### Acervo (ordem dos índices MindAR)
@@ -30,37 +34,48 @@ A demo tem **dois modos**:
 
 Os quatro registros foram verificados pela API de coleção aberta do The Met com `isPublicDomain=true` e URL para imagem pública. Os cards atuais usam essas imagens hospedadas pelo museu. Em produção, prefira armazenar as imagens no próprio projeto para reduzir dependências externas.
 
-### Preparação dos quatro alvos (passo indispensável)
+### Utilizar os alvos já enviados (sem recompilar)
 
-**Se você já executou o script antigo:** a pasta `alvos-galeria/` pode conter `05-sargent-madame-x.jpg`. Não selecione esse arquivo na compilação; use **somente 01, 02, 03 e 04**. Não é necessário apagar o arquivo antigo do seu computador.
+O GitHub contém [`galeria-targets-novas.mind`](galeria-targets-novas.mind), com **três imagens compiladas** no seguinte mapeamento:
 
+| Índice dentro de `galeria-targets-novas.mind` | Obra | Índice do catálogo |
+|---|---|---|
+| 0 | A Grande Onda de Kanagawa | 1 |
+| 1 | A Aula de Dança | 3 |
+| 2 | Íris | 2 |
 
+O JavaScript da galeria faz a conversão de índices automaticamente, evitando que a HUD de uma obra apareça na outra. Ao entrar na galeria, o seletor **“Câmera: três obras novas”** utiliza esse arquivo já versionado, sem necessidade de compilação manual.
 
-No PowerShell, depois de `git pull origin master`:
+Para testar o **Van Gogh original**, selecione **“Câmera: Van Gogh 3D”**. Esse modo utiliza o `targets.mind` original, **que ainda não foi incluído no GitHub**. Ele deve estar salvo na pasta `frontend/poc-mindar/` do seu computador. Não substitua esse arquivo pelo `targets.mind` das outras obras; o arquivo novo já está no repositório com outro nome.
+
+### Unir o Van Gogh às três obras novas: os quatro numa câmera só
+
+Não é necessário recompilar no site do MindAR. Basta combinar os arquivos binários existentes:
 
 ```powershell
-cd "$env:USERPROFILE\Documents\GitHub\anima-art-3d\anima-art-3d-repo\frontend\poc-mindar"
-python preparar_alvos_galeria.py
+cd "$env:USERPROFILE\Documents\GitHub\anima-art-3d\anima-art-3d-repo"
+git pull origin master
+
+cd frontend\poc-mindar
+python -m pip install msgpack
+python combinar_alvos_galeria.py
 ```
 
-O script baixa quatro JPGs para a pasta `alvos-galeria/`, nomeados de **01** a **04**, com as versões exatas da galeria.
+O script espera dois arquivos na mesma pasta:
+- `targets.mind` = apenas Van Gogh;
+- `galeria-targets-novas.mind` = Grande Onda, Aula de Dança, Íris (já vem no GitHub).
 
-1. Abra o [compilador oficial de alvos MindAR](https://hiukim.github.io/mind-ar-js-doc/tools/compile/) **no computador**.
-2. Selecione os **quatro arquivos JPG, juntos e na ordem 01 → 04**. Não misture com o antigo `targets.mind`.
-3. Clique **Start**, aguarde a compilação e depois **Download**.
-4. Renomeie o resultado `targets.mind` para **`galeria-targets.mind`**.
-5. Coloque-o em `frontend/poc-mindar/galeria-targets.mind` e reinicie/atualize a página `/galeria.html`.
-6. Para disponibilizar o multi-alvo a quem der `git pull`, execute na raiz do repositório:
+A saída `galeria-targets.mind` terá a ordem correta para o catálogo: **0 Van Gogh, 1 Grande Onda, 2 Íris, 3 Aula de Dança**.
+
+Se tudo funcionar no celular, versionar o arquivo final a partir da **raiz do repositório**:
 
 ```powershell
 git add frontend/poc-mindar/galeria-targets.mind
-git commit -m "assets: compila quatro alvos MindAR da galeria"
+git commit -m "assets: inclui os quatro alvos da galeria"
 git push origin master
 ```
 
-Como alternativa **sem commit**, toque **Usar arquivo .mind** na galeria e selecione o `galeria-targets.mind` criado. Nesse modo o arquivo vale apenas para aquela sessão no dispositivo.
-
-**Atenção:** o índice gravado no `.mind` precisa combinar com a tabela acima, senão a HUD mostrará a obra errada. Não altere nem corte os JPGs depois de compilar. O arquivo `targets.mind` antigo continua servindo ao teste de Van Gogh; não deve ser sobrescrito.
+Como alternativa, é possível selecionar as quatro imagens no [compilador oficial MindAR](https://hiukim.github.io/mind-ar-js-doc/tools/compile/) na ordem da tabela do acervo. O [`preparar_alvos_galeria.py`](preparar_alvos_galeria.py) baixa os quatro JPEGs. **Se existir o arquivo antigo `05-sargent-madame-x.jpg`, deixe-o de fora.**
 
 ### Gerar as narrações naturais em português e inglês
 
@@ -83,7 +98,7 @@ python -m http.server 8000
 
 Abra `http://localhost:8000/` no computador. Para usar a câmera no iPhone, mantenha o servidor aberto, abra **outro terminal** com o Cloudflare Tunnel apontando para `localhost:8000` e acesse o novo endereço HTTPS. Depois clique em **Iniciar experiência** e **Abrir câmera AR**.
 
-**Limitações atuais:** ainda não foram compilados os quatro alvos num único `.mind` nem testados o rastreamento dos três quadros novos e os efeitos no iPhone; cada um dos três também precisará de um modelo GLB próprio se quisermos o mesmo tipo de relevo do primeiro Van Gogh. Esta etapa entrega a estrutura da galeria e a integração preparada para multi-target, não quatro reconstruções tridimensionais completas.
+**Limitações atuais:** os três alvos novos foram compilados e enviados, mas ainda não foram testados na câmera física; o `targets.mind` original do Van Gogh não está no GitHub, então não foi possível gerar aqui o arquivo combinado de quatro alvos. As três obras adicionais têm apenas efeitos AR iniciais, sem relevos GLB próprios.
 
 ---
 
