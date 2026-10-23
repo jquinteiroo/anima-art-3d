@@ -6,28 +6,35 @@ A demo tem **dois modos**:
 - **Alvo oficial MindAR:** já possui um `.mind` hospedado na documentação do projeto e permite testar imediatamente.
 - **Van Gogh — Campo de Trigo com Ciprestes:** exige o arquivo `targets.mind` compilado a partir da pintura escolhida.
 
-## Publicação correta no Netlify
+## Qual página abrir? (importante)
 
-Crie uma pasta no computador (por exemplo `mindar-demo`) com **dois arquivos na raiz**:
+- [`index.html`](index.html): **entrada principal**, redireciona automaticamente para `animada.html?mode=art`.
+- [`animada.html`](animada.html): **versão atual**, HUD compacta, relevo GLB otimizado, narração PT-BR/EN e shader opcional.
+- [`index-tecnico.html`](index-tecnico.html): **prova de conceito antiga**, preservada com painel grande, anel dourado e cipreste geométrico, só para comparar o rastreamento.
+
+**Se aparecer “ALVO ENCONTRADO · RASTREAMENTO ATIVO” num painel grande junto de esfera dourada e cone verde, você abriu a demo antiga**, não o GLB. Atualize o projeto e abra `/animada.html?mode=art` no Safari. Se necessário, use `/animada.html?mode=art&v=3d` para contornar cache da URL.
+
+## Publicação e teste no celular
+
+Sirva a pasta `frontend/poc-mindar` inteira, mantendo a estrutura:
 
 ```text
-mindar-demo/
-├── index.html
-└── targets.mind
+poc-mindar/
+├── index.html           # redireciona para a demo atual
+├── animada.html         # demonstração atual
+├── index-tecnico.html   # prova de conceito antiga
+├── targets.mind         # imagem-alvo compilada no MindAR
+├── painting.jpg         # imagem idêntica à usada para compilar o alvo (shader opcional)
+├── models/
+│   └── van_gogh_relevo_mobile.glb
+└── audio/
+    ├── van-gogh-pt-BR.mp3    # gerado pelo script, não versionado inicialmente
+    └── van-gogh-en-US.mp3    # gerado pelo script, não versionado inicialmente
 ```
 
-1. Baixe o [index.html atualizado](index.html) deste repositório pelo botão **Raw → salvar arquivo** (ou clone o repositório e copie `frontend/poc-mindar/index.html`).
-2. Coloque o arquivo **`targets.mind` que você compilou** ao lado do `index.html`, mantendo exatamente esse nome.
-3. Em [Netlify Drop](https://app.netlify.com/drop), arraste **a pasta inteira** `mindar-demo`, não um arquivo isolado.
-4. Se já tiver um site Netlify criado, abra seu projeto em **Deploys** e arraste a pasta atualizada para a área de deploy manual.
-5. Abra a URL **https://...netlify.app** em **Chrome no Android ou Safari no iPhone**, preferencialmente fora de WhatsApp/Instagram.
-6. Toque primeiro em **Testar câmera (sem AR)**. Autorize a câmera; deve aparecer uma imagem ao vivo.
-7. Encerre esse teste e selecione **Van Gogh — obra real**. Toque em **Iniciar realidade aumentada**.
-8. Abra [a mesma imagem exata da pintura](https://images.metmuseum.org/CRDImages/ep/web-large/DP-42549-001.jpg) em um monitor ou imprima. Aponte a câmera para ela.
+Com `python -m http.server 8000` executado nessa pasta, `http://localhost:8000/` leva à nova versão. No iPhone, inicie um Cloudflare Tunnel HTTPS em outro terminal e use o novo endereço criado.
 
-O arquivo `targets.mind` é **binário** e não é gerado automaticamente pela página. Ele deve resultar do [compilador oficial MindAR](https://hiukim.github.io/mind-ar-js-doc/tools/compile/) utilizando a imagem acima.
-
-**Alternativa:** sem publicar o `targets.mind`, escolha-o no seletor de arquivo dentro do modo Van Gogh **no próprio celular**. Para isso, o arquivo deve ter sido copiado para o armazenamento do telefone.
+Ao iniciar a demo, o modo **Van Gogh** já estará selecionado. A opção **Alvo oficial MindAR** continua disponível para diagnóstico. O arquivo `targets.mind` precisa estar na pasta ou ser selecionado manualmente no celular. Gere-o pelo [compilador oficial](https://hiukim.github.io/mind-ar-js-doc/tools/compile/) a partir da imagem-alvo exata.
 
 ## HUD compacta — animada.html
 
@@ -37,24 +44,17 @@ A versão `animada.html` utiliza uma interface otimizada para observar a pintura
 - **Após 3 segundos:** o painel recolhe automaticamente para mostrar mais da obra, desde que o usuário não tenha aberto as informações.
 - **Seta do painel:** expande ou recolhe manualmente; a interação cancela o recolhimento automático.
 - **Informações:** abre a descrição e a história da obra, o controle de intensidade e o botão para pausar/retomar o shader.
-- **Ouvir áudio:** inicia ou encerra a narração sintetizada em português.
+- **Ouvir áudio:** reproduz a narração MP3 neural no idioma PT/EN selecionado (desde que os arquivos tenham sido gerados).
 - **Ocultar:** esconde o painel; o botão discreto **Informações da obra** permite restaurá-lo.
 - **Alvo perdido:** os controles referentes à obra são ocultados; reaparecem quando o rastreamento é recuperado.
 
-A demo original `index.html` permanece sem alterações. Esta atualização modifica apenas a apresentação da versão artística: **não exige recompilar `targets.mind` nem alterar `painting.jpg`**.
+A prova técnica antiga foi preservada em `index-tecnico.html`; a rota `index.html` agora abre a nova demo. Não é necessário recompilar `targets.mind` apenas para usar a interface nova, desde que a imagem-alvo não tenha mudado.
 
 No clone local, rode `git pull origin master`; com os terminais Python e Cloudflare Tunnel ativos, recarregue `/animada.html` no navegador do celular. Caso o Safari use cache, feche a aba e abra novamente a URL.
 
-## Escolha de voz e velocidade (pintura animada)
+## Idioma e narração
 
-Na versão `animada.html`, ao encontrar a pintura, abra a HUD e toque em **Informações**. A seção oferece:
-
-- **Voz da narração:** lista as vozes em português disponibilizadas pelo navegador/dispositivo via `speechSynthesis.getVoices()`;
-- **Testar voz:** reproduz uma frase curta com a voz e a velocidade selecionadas;
-- **Velocidade:** ajuste entre 0,75× e 1,20×;
-- **Ouvir áudio:** reproduz ou interrompe a narração completa conforme os ajustes.
-
-A atualização mantém o reconhecimento de imagem e as animações inalterados. As opções são carregadas quando o navegador as disponibiliza e podem variar entre Safari no iPhone, Chrome e outros dispositivos. A seleção de voz do sistema **não garante locução profissional**: se nenhuma alternativa em português estiver disponível, continua sendo usada a voz padrão. Para produção em museus, avaliar gravações narradas ou áudio TTS de qualidade superior pré-gerado e revisado.
+Na versão atual da pintura, o visitante escolhe **PT / EN** na HUD e ouve MP3s previamente gerados, para evitar mudanças de timbre conforme o navegador. As vozes disponíveis no celular não são o padrão. Se os MP3s estiverem ausentes, a interface mostra o aviso e permite usar a voz do aparelho apenas como alternativa explícita.
 
 ## Narração bilíngue com vozes neurais (versão `animada.html`)
 
