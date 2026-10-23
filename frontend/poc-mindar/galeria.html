@@ -83,6 +83,8 @@
 .target-file-button{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px}
 .target-file-button:hover{border-color:#d9bb8e}
 .target-file-input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}
+#tracking-choice{background:#192b39;border:1px solid #8799a86b;border-radius:999px;color:#e7e3da;padding:10px 12px;max-width:260px;font-size:12px}
+#tracking-choice option{background:#142537}
 .target-file-button:has(+ .target-file-input:focus-visible){outline:2px solid #f6dbac;outline-offset:3px}
 </style>
 </head>
@@ -108,6 +110,10 @@
       </div>
       <div class="gallery-actions">
         <button id="back-home" class="ghost" type="button">← Início</button>
+        <select id="tracking-choice" aria-label="Quais obras reconhecer" title="Escolha quais obras detectar">
+          <option value="novas">Câmera: três obras novas</option>
+          <option value="vangogh">Câmera: Van Gogh 3D</option>
+        </select>
         <label class="ghost target-file-button" for="target-upload">Usar arquivo .mind</label>
         <input id="target-upload" type="file" accept=".mind,application/octet-stream" class="target-file-input">
         <button id="scan-collection" class="primary" type="button">◉ Abrir câmera AR</button>
@@ -149,6 +155,7 @@
 let THREE=null,MindARThree=null,GLTFLoader=null,ar=null,started=false,starting=false,frameHandle=null;
 let currentIndex=null,compactTimeout=null,currentAudio=null,oldSpeech=null,scanningMode="multi";
 let uploadedTargetsURL=null;
+let uploadedTargetKind=null;
 const $=id=>document.getElementById(id);
 const ARTWORKS=[
  {id:"vangogh",slug:"van-gogh",artist:"Vincent van Gogh",year:"1889",aspect:73.2/93.4,
@@ -225,8 +232,16 @@ $("target-upload").addEventListener("change",()=>{
   return;
  }
  uploadedTargetsURL=URL.createObjectURL(file);
- $("scan-collection").textContent="◉ Abrir câmera com 4 alvos";
- showNotice("Arquivo de rastreamento selecionado","O arquivo .mind foi carregado. Ele precisa conter as quatro obras, na ordem mostrada na galeria. Agora você pode iniciar a câmera.",null);
+ // Pelo nome do arquivo, identifica a ordem dos alvos esperada.
+ // Um .mind genérico segue o conjunto selecionado pelo visitante.
+ uploadedTargetKind=file.name==="galeria-targets-novas.mind"?"novas":
+  file.name==="galeria-targets.mind"?"completa":
+  file.name==="targets.mind"?"vangogh":$("tracking-choice").value;
+ $("scan-collection").textContent="◉ Abrir câmera AR";
+ const labels={novas:"Grande Onda → Aula de Dança → Íris",vangogh:"Van Gogh",completa:"Van Gogh → Grande Onda → Íris → Aula de Dança"};
+ showNotice("Arquivo de rastreamento selecionado",
+  "Arquivo carregado. Ordem esperada: "+labels[uploadedTargetKind]+". "+
+  "Se o arquivo foi compilado com uma ordem diferente, a HUD também será diferente.",null);
 });
 function currentWork(){return currentIndex===null?null:ARTWORKS[currentIndex]}
 function currentLanguage(){return $("panel-language").value;}
@@ -356,28 +371,39 @@ async function addVanGoghRelief(group,height){
  const light=new THREE.DirectionalLight(0xffffff,1.3);light.position.set(-.3,.6,1.3);group.add(light);
 }
 async function checkTargetFiles(){
- if(uploadedTargetsURL)return {path:uploadedTargetsURL,multi:true};
  const head=async path=>{
   try{const r=await fetch(path,{method:"HEAD",cache:"no-store"});return r.ok&&!(r.headers.get("content-type")||"").includes("text/html");}
   catch{return false;}
  };
- if(await head("./galeria-targets.mind"))return {path:"./galeria-targets.mind",multi:true};
- if(await head("./targets.mind"))return {path:"./targets.mind",multi:false};
+ if(uploadedTargetsURL){
+  const kind=uploadedTargetKind||"novas";
+  return {path:uploadedTargetsURL,indices:kind==="completa"?[0,1,2,3]:kind==="vangogh"?[0]:[1,3,2],mode:kind};
+ }
+ // O modo de Van Gogh usa a imagem original compilada separadamente.
+ if($("tracking-choice").value==="vangogh"){
+  if(await head("./galeria-targets.mind"))return {path:"./galeria-targets.mind",indices:[0],mode:"completa"};
+  if(await head("./targets.mind"))return {path:"./targets.mind",indices:[0],mode:"vangogh"};
+  return null;
+ }
+ // Ao unir os dois arquivos com combinar_alvos_galeria.py,
+ // a galeria completa reconhece os quatro alvos em uma única sessão.
+ if(await head("./galeria-targets.mind"))return {path:"./galeria-targets.mind",indices:[0,1,2,3],mode:"completa"};
+ // O arquivo enviado pelo usuário tem 3 alvos, nesta ordem:
+ // Grande Onda (index 1), Aula de Dança (index 3), Íris (index 2).
+ if(await head("./galeria-targets-novas.mind"))return {path:"./galeria-targets-novas.mind",indices:[1,3,2],mode:"novas"};
+ if(await head("./targets.mind"))return {path:"./targets.mind",indices:[0],mode:"vangogh"};
  return null;
 }
 async function beginAR(){
  if(starting||started)return;
  if(!window.isSecureContext||!navigator.mediaDevices?.getUserMedia){
-  showNotice("Câmera exige HTTPS","Abra o site via localhost no computador ou HTTPS no celular, usando Cloudflare Tunnel.",null);
+  showNotice("Câmera exige HTTPS","Abra a galeria via localhost no computador ou HTTPS no celular, usando Cloudflare Tunnel.",null);
   return;
  }
  const target=await checkTargetFiles();
  if(!target){
-  showNotice("Preparar os alvos da galeria","Ainda não encontramos galeria-targets.mind. É preciso compilar as quatro imagens na ordem da galeria e salvar esse arquivo junto de galeria.html. Consulte o guia do projeto.",null);
-  return;
- }
- if(!target.multi){
-  showNotice("Galeria em modo de demonstração","O arquivo multi-alvo ainda não está instalado. Por enquanto a câmera reconhecerá apenas Campo de Trigo com Ciprestes, que já funciona. Para reconhecer todas as quatro obras automaticamente, gere galeria-targets.mind a partir das quatro imagens, na ordem do acervo.",()=>void startAR(target));
+  const missing=$("tracking-choice").value==="vangogh"?"targets.mind (Van Gogh)":"galeria-targets-novas.mind";
+  showNotice("Arquivo de reconhecimento ausente","Não encontramos "+missing+". Verifique se você iniciou o servidor Python na pasta poc-mindar e atualizou o git pull.",null);
   return;
  }
  await startAR(target);
@@ -390,9 +416,9 @@ async function startAR(target){
   THREE=modules[0];MindARThree=modules[1].MindARThree;GLTFLoader=modules[2].GLTFLoader;
   ar=new MindARThree({container:$("camera"),imageTargetSrc:target.path,uiLoading:"yes",uiScanning:"no",maxTrack:1});
   const animations=[];
-  const count=target.multi?ARTWORKS.length:1;
-  for(let i=0;i<count;i++){
-   const work=ARTWORKS[i],anchor=ar.addAnchor(i);
+  for(let targetIndex=0;targetIndex<target.indices.length;targetIndex++){
+   const i=target.indices[targetIndex];
+   const work=ARTWORKS[i],anchor=ar.addAnchor(targetIndex);
    animations.push(addAugmentedArtwork(anchor.group,work));
    if(i===0){
     try{await addVanGoghRelief(anchor.group,work.aspect);}catch(e){console.warn("GLB do Van Gogh não carregou",e);}
@@ -412,7 +438,12 @@ async function startAR(target){
    for(const draw of animations)draw(t);
    ar.renderer.render(ar.scene,ar.camera);
   });
-  $("camera-status").textContent=target.multi?"Buscando as quatro obras...":"Buscando Van Gogh (modo de teste)...";
+  $("scanner-label").textContent=target.mode==="completa"?
+   "Aponte para qualquer uma das quatro obras":
+   target.mode==="novas"?"Aponte para Grande Onda, Aula de Dança ou Íris":"Aponte para Campo de Trigo com Ciprestes";
+  $("camera-status").textContent=target.mode==="completa"?
+   "Buscando as quatro obras...":target.mode==="novas"?
+   "Buscando três obras novas...":"Buscando Van Gogh (modo de teste)...";
  }catch(e){
   console.error(e);
   await endAR();
