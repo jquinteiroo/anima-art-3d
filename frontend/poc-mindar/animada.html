@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b111b">
-<title>Anima Art 3D | Pintura animada</title>
+<title>Anima Art 3D | Relevo 3D</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#0b111b;color:#f0f3f8;font:15px system-ui,-apple-system,Segoe UI,sans-serif}button,select,input{font:inherit}
 #camera{position:fixed;inset:0;z-index:0}#setup{position:relative;z-index:2;max-width:680px;margin:4vh auto 40px;padding:28px;background:#121e2bec;border:1px solid #455970;border-radius:20px;box-shadow:0 20px 80px #0009}
@@ -143,13 +143,13 @@ button{cursor:pointer}#start{background:#e3bb80;border:0;color:#1b1c1d;font-weig
 <body>
 <div id="camera"></div>
 <main id="setup">
-  <div class="tag">✳ ANIMA ART 3D · PINTURA ANIMADA (EXPERIMENTAL)</div>
+  <div class="tag">✳ ANIMA ART 3D · EXPERIÊNCIA EM RELEVO 3D</div>
   <h1>Arte que ganha <em>movimento.</em></h1>
-  <p>Prova de conceito do rastreamento de imagens com MindAR + Three.js. Os efeitos 3D aparecem na tela do celular e acompanham a pintura.</p>
+  <p>Explore a obra de Van Gogh em relevo 3D com rastreamento MindAR, HUD compacta e narração em português e inglês.</p>
   <label for="mode">Imagem-alvo para testar</label>
   <select id="mode">
-    <option value="sample">Alvo oficial do MindAR — funciona imediatamente</option>
-    <option value="art">Van Gogh — obra real (compilar imagem)</option>
+    <option value="art" selected>Van Gogh — Campo de Trigo com Ciprestes (relevo 3D)</option>
+    <option value="sample">Alvo oficial do MindAR — teste técnico</option>
   </select>
   <div class="preview" id="sample">
     <img src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.png" alt="Alvo de teste oficial">
@@ -260,7 +260,7 @@ function refresh(){
  $("compile").classList.toggle("hide",!art);
  $("start").disabled=starting;
  if (!starting) message(art?
-   (customUrl?"Arquivo .mind selecionado no celular. Pronto para testar.":"Para testar a pintura, publique targets.mind junto do index.html ou selecione-o abaixo."):
+   (customUrl?"Arquivo .mind selecionado no celular. Pronto para testar.":"Para testar a pintura, coloque targets.mind junto de animada.html ou selecione-o abaixo."):
    "Modo oficial pronto. Teste a câmera antes de iniciar a AR.");
 }
 $("mode").addEventListener("change",refresh);
@@ -564,7 +564,7 @@ async function start(){
   if(art&&!customUrl){
     const r=await fetch(source,{cache:"no-store"});
     const type=(r.headers.get("content-type")||"").toLowerCase();
-    if(!r.ok||type.includes("text/html"))throw new Error("targets.mind não encontrado. No Netlify, publique a pasta contendo index.html e targets.mind lado a lado.");
+    if(!r.ok||type.includes("text/html"))throw new Error("targets.mind não encontrado. Publique targets.mind na mesma pasta de animada.html.");
   }
   await stopPreview();
   message("Carregando bibliotecas MindAR e Three.js...");
@@ -790,6 +790,9 @@ syncNarrationButtons();
 void checkNarrationAsset();
 
 window.addEventListener("pagehide",()=>{cancelSpeech();clearHudTimer();if(running)void stop();if(previewStream)void stopPreview()});
+// A experiência atual é a padrão; ?mode=sample abre o teste técnico quando necessário.
+const requestedMode=new URLSearchParams(window.location.search).get("mode");
+if(requestedMode==="sample")$("mode").value="sample";
 refresh();
 </script>
 </body>
