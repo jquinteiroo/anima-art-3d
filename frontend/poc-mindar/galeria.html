@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0c111b">
+<title>Galeria Virtual de Realidade Aumentada | Anima Art 3D</title>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/","mindar-image-three":"https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"}}</script>
+<style>
+:root{color-scheme:dark;--bg:#0b101a;--ink:#f7f1e9;--mute:#adb3c2;--gold:#d7b78b;--panel:#101c2aea}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}button,select{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible,select:focus-visible{outline:2px solid #f6dbac;outline-offset:3px}a{color:inherit}.hide{display:none!important}#camera{position:fixed;inset:0;z-index:0}
+#app{position:relative;min-height:100dvh;background:radial-gradient(ellipse 70% 35% at 80% 9%,#46332545,transparent),radial-gradient(ellipse 55% 50% at 10% 75%,#233c4140,transparent),var(--bg)}
+#landing{min-height:100dvh;display:grid;place-items:center;position:relative;overflow:hidden;padding:88px 24px 70px}
+#landing:after{content:"";position:absolute;inset:0;background-image:linear-gradient(90deg,transparent 98%,#e6d2ac08 99%),linear-gradient(transparent 98%,#e6d2ac08 99%);background-size:80px 80px;pointer-events:none;mask-image:linear-gradient(#0008,transparent)}
+.brand{position:absolute;z-index:2;top:28px;left:max(24px,calc((100vw - 1170px)/2));display:flex;align-items:center;gap:10px;letter-spacing:.23em;font-size:11px;font-weight:800;color:#edd8b4}
+.brand-symbol{width:29px;height:29px;border:1px solid var(--gold);border-radius:50%;display:grid;place-items:center;font-size:18px}
+.eyebrow{font-size:11px;letter-spacing:.29em;text-transform:uppercase;color:var(--gold);font-weight:800}
+.hero{position:relative;z-index:2;text-align:center;max-width:840px}
+.hero h1{font:normal clamp(48px,9vw,108px)/.99 Georgia,"Times New Roman",serif;letter-spacing:-.045em;margin:19px auto 24px;text-wrap:balance}
+.hero h1 em{color:#e6bf8e;font-style:italic}.hero p{font-size:clamp(14px,2vw,18px);color:#bfc1c9;max-width:540px;margin:0 auto 29px;line-height:1.7}
+.primary{border:1px solid #dfbd90;background:linear-gradient(135deg,#edcea3,#c99b67);color:#14141a;font-weight:800;border-radius:999px;padding:14px 26px;box-shadow:0 9px 37px #d3a5692c}
+.primary:hover{filter:brightness(1.08)}.ghost{border:1px solid #8290a258;color:#e8e6e5;background:#1d2936bd;border-radius:999px;padding:12px 18px}
+.hero-note{display:block;font-size:11px;letter-spacing:.07em;color:#b4b7c0;margin-top:17px}
+.hero-art{position:absolute;filter:brightness(.55) saturate(.8);opacity:.46;width:clamp(115px,20vw,245px);height:clamp(175px,33vw,345px);object-fit:cover;box-shadow:0 25px 80px #0009;border:7px solid #7d5b372f}
+.hero-art.left{left:-4%;top:28%;transform:rotate(-14deg)}.hero-art.right{right:-4%;top:18%;transform:rotate(13deg)}
+#gallery{min-height:100dvh;padding:96px max(18px,calc((100vw - 1180px)/2)) 90px;animation:fadeIn .7s both}
+.gallery-top{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:34px}
+.gallery-top h1{font:normal clamp(37px,6vw,72px)/1.04 Georgia,serif;letter-spacing:-.03em;margin:10px 0 8px}
+.gallery-top p{color:var(--mute);max-width:490px;margin:0}
+.gallery-actions{display:flex;gap:10px;flex-wrap:wrap}
+.cards{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}
+.art-card{grid-column:span 3;min-width:0;border:1px solid #c9b79428;background:#172130;overflow:hidden;border-radius:16px;position:relative;transform:translateY(26px);opacity:0;animation:rise .7s cubic-bezier(.19,1,.22,1) both}
+.art-card.featured{grid-column:span 6;grid-row:span 2}
+.art-card:nth-child(1){animation-delay:.08s}.art-card:nth-child(2){animation-delay:.20s}.art-card:nth-child(3){animation-delay:.32s}.art-card:nth-child(4){animation-delay:.44s}.art-card:nth-child(5){animation-delay:.56s}
+.art-image{height:240px;position:relative;background:#1b2832;overflow:hidden}.featured .art-image{height:530px}
+.art-image img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .75s ease}
+.art-card:hover img{transform:scale(1.06)}
+.art-image:after{content:"";position:absolute;inset:45% 0 0;background:linear-gradient(transparent,#111923a6)}
+.art-chip{position:absolute;top:13px;left:13px;z-index:1;padding:5px 9px;border:1px solid #f2ddbf7a;background:#101926b3;border-radius:99px;font-size:10px;letter-spacing:.12em}
+.art-content{padding:17px 18px 18px}.art-content small{display:block;color:#c9ae86;font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+.art-content h2{font:normal 24px/1.1 Georgia,serif;margin:7px 0 5px}
+.art-content p{color:#b9c3ce;font-size:12px;margin:0 0 12px}
+.art-content button{background:transparent;border:0;padding:0;color:#e4c596;text-decoration:underline;text-underline-offset:4px;font-size:12px}
+.gallery-hint{color:#9eafc0;font-size:12px;margin-top:20px}
+#ar{position:fixed;inset:0;z-index:7;pointer-events:none}
+#ar button,#ar select,#ar a{pointer-events:auto}
+.ar-gradient{position:absolute;inset:0;background:linear-gradient(#08101c98,transparent 18%,transparent 65%,#07101dc9);pointer-events:none}
+.scan-header{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));left:14px;right:14px;display:flex;justify-content:space-between;gap:12px;align-items:center}
+.scan-header strong{font-size:12px;letter-spacing:.09em}.scan-header span{display:block;color:#e3c390;font-size:10px}
+.exit{color:#f4e9db;border:1px solid #f4e8d266;background:#0b1927d9;border-radius:10px;padding:10px 13px}
+.scanner{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);text-align:center;width:min(320px,80vw)}
+.scanner .corners{height:190px;border:1px solid #d9c39d57;border-radius:18px;box-shadow:0 0 0 6px #09131b1c inset;position:relative}
+.scanner .corners:after{content:"";position:absolute;left:12%;right:12%;height:2px;top:18%;background:linear-gradient(90deg,transparent,#dfc193,transparent);box-shadow:0 0 15px #ffcf90;animation:scan 2.8s ease-in-out infinite alternate}
+.scanner p{font-size:13px;color:#e5e5e7;text-shadow:0 2px 8px #000;margin:15px 0 0}
+#ar-panel{position:absolute;bottom:calc(32px + env(safe-area-inset-bottom,0px));left:12px;right:12px;max-width:390px;max-height:min(65dvh,500px);overflow-y:auto;background:#0b192bec;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid #d7b78baa;border-radius:17px;padding:13px 15px;box-shadow:0 14px 40px #000a}
+#ar-panel.compact #panel-extended,#ar-panel.compact #panel-actions{display:none!important}
+#ar-panel.compact{max-height:none;padding:10px 13px}
+.panel-title{display:flex;align-items:center;gap:9px}
+.panel-title-content{flex:1;min-width:0}.panel-title-content small{color:#d9bf94;letter-spacing:.13em;font-size:10px}
+.panel-title h2{font:normal 21px/1.15 Georgia,serif;margin:4px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.panel-title p{font-size:11px;color:#becad6;margin:0}
+.panel-btn{border:1px solid #64829a;background:#203449;color:#f1e6d7;padding:8px 10px;border-radius:8px;font-size:12px}
+#panel-actions{display:flex;gap:8px;margin-top:13px}
+#panel-actions button{flex:1;min-width:0}
+#panel-extended{margin-top:13px;padding-top:13px;border-top:1px solid #ffffff26}
+#panel-extended p{font-size:12px;line-height:1.6;color:#dee3e9}
+#panel-extended a{font-size:11px;color:#e2c597}
+#ar-note{font-size:11px;color:#ebcea6;line-height:1.5}
+#ar-audio-help{margin-top:8px}
+.lang{background:#203449;color:white;border:1px solid #69859f;border-radius:8px;padding:7px 4px;font-weight:700;font-size:12px}
+#ar-mini{position:absolute;right:12px;bottom:calc(32px + env(safe-area-inset-bottom,0px));background:#142435e9;color:#f1d2a2;border:1px solid #d7b78baa;border-radius:99px;padding:10px 15px}
+#camera-status{position:absolute;bottom:calc(8px + env(safe-area-inset-bottom,0px));left:12px;color:#d9dfe5;font-size:11px}
+#message-overlay{position:fixed;inset:0;background:#07111ad9;z-index:11;display:grid;place-items:center;padding:20px;pointer-events:auto}
+.message-card{max-width:520px;background:#192534;border:1px solid #aa936d;border-radius:17px;padding:25px}
+.message-card h2{font:normal 27px Georgia,serif}.message-card p{color:#ccd2de}
+.message-card button,.message-card a{display:inline-block;margin:5px 8px 0 0;border:1px solid #c4ad85;background:#273a4c;color:#ffebd0;padding:10px 14px;border-radius:9px;text-decoration:none}
+@keyframes rise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes scan{from{top:15%}to{top:84%}}
+@media(max-width:950px){.cards{grid-template-columns:repeat(6,minmax(0,1fr))}.art-card{grid-column:span 3}.art-card.featured{grid-column:span 6;grid-row:span 1}.featured .art-image{height:380px}.gallery-top{align-items:start;flex-direction:column}}
+@media(max-width:560px){#gallery{padding:80px 14px 65px}.cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.art-card{grid-column:span 1}.art-card.featured{grid-column:span 2}.art-image{height:172px}.featured .art-image{height:300px}.art-content{padding:12px}.art-content h2{font-size:17px}.art-content p{font-size:11px}.hero-art{opacity:.19}.hero h1{font-size:clamp(44px,12vw,68px)}.gallery-actions{width:100%}.gallery-actions button{flex:1}.panel-title h2{font-size:18px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div id="camera"></div>
+<div id="app">
+  <div class="brand"><span class="brand-symbol">✳</span> ANIMA ART 3D <span style="opacity:.5">/ MUSEUM</span></div>
+  <section id="landing">
+    <img class="hero-art left" src="https://images.metmuseum.org/CRDImages/as/web-large/DP141042.jpg" alt="" aria-hidden="true">
+    <img class="hero-art right" src="https://images.metmuseum.org/CRDImages/ep/web-large/DP-42549-001.jpg" alt="" aria-hidden="true">
+    <div class="hero">
+      <div class="eyebrow">Uma nova forma de observar a arte</div>
+      <h1>Galeria virtual de <em>realidade aumentada.</em></h1>
+      <p>Explore grandes obras da história da arte. Descubra detalhes, ouça suas histórias e veja pinturas ganharem profundidade através da câmera do seu celular.</p>
+      <button id="enter" class="primary" type="button">Iniciar experiência <span aria-hidden="true">↗</span></button>
+      <span class="hero-note">05 OBRAS · PT-BR / EN · SEM INSTALAR APLICATIVO</span>
+    </div>
+  </section>
+  <section id="gallery" class="hide" aria-label="Obras da galeria">
+    <div class="gallery-top">
+      <div><div class="eyebrow">Acervo digital · edição 01</div><h1>Explore a coleção</h1>
+        <p>Escolha uma obra para conhecer sua história ou ative a câmera e aponte para qualquer pintura cadastrada.</p>
+      </div>
+      <div class="gallery-actions">
+        <button id="back-home" class="ghost" type="button">← Início</button>
+        <button id="scan-collection" class="primary" type="button">◉ Abrir câmera AR</button>
+      </div>
+    </div>
+    <div id="cards" class="cards"></div>
+    <p class="gallery-hint">Obras de domínio público, imagens do Metropolitan Museum of Art · Experiência WebAR experimental.</p>
+  </section>
+</div>
+<div id="ar" class="hide">
+  <div class="ar-gradient"></div>
+  <div class="scan-header"><div><span>ANIMA ART 3D / MUSEUM</span><strong>Galeria Virtual AR</strong></div><button class="exit" id="exit-ar">Encerrar ×</button></div>
+  <div class="scanner" id="scanner"><div class="corners"></div><p id="scanner-label">Aponte a câmera para uma das cinco obras</p></div>
+  <div id="ar-panel" class="hide" aria-label="Informações da obra reconhecida">
+    <div class="panel-title">
+      <div class="panel-title-content"><small id="panel-status">● OBRA RECONHECIDA</small><h2 id="panel-name"></h2><p id="panel-meta"></p></div>
+      <select id="panel-language" class="lang" aria-label="Idioma da narração"><option value="pt-BR">PT</option><option value="en-US">EN</option></select>
+      <button id="panel-collapse" class="panel-btn" aria-label="Recolher painel">⌄</button>
+    </div>
+    <div id="panel-actions"><button id="panel-info" class="panel-btn">ⓘ História</button><button id="panel-play" class="panel-btn">♫ Ouvir</button><button id="panel-hide" class="panel-btn">Ocultar</button></div>
+    <div id="panel-extended" class="hide">
+      <p id="panel-description"></p>
+      <p id="ar-note"></p>
+      <a id="panel-source" href="#" target="_blank" rel="noopener noreferrer">Fonte: The Met ↗</a>
+      <div id="ar-audio-help"><button id="panel-device-voice" class="panel-btn">Usar voz do aparelho (alternativa)</button></div>
+    </div>
+  </div>
+  <button id="ar-mini" class="hide" type="button">ⓘ Informações da obra</button>
+  <span id="camera-status">Preparando câmera...</span>
+</div>
+<div id="message-overlay" class="hide">
+  <div class="message-card"><h2 id="message-title">Configuração de reconhecimento</h2><p id="message-copy"></p>
+    <button id="message-continue" type="button">Continuar</button>
+    <a href="https://hiukim.github.io/mind-ar-js-doc/tools/compile/" target="_blank" rel="noopener noreferrer">Compilador MindAR ↗</a>
+    <button id="message-cancel" type="button">Voltar à galeria</button>
+  </div>
+</div>
+<script>
+let THREE=null,MindARThree=null,GLTFLoader=null,ar=null,started=false,starting=false,frameHandle=null;
+let currentIndex=null,compactTimeout=null,currentAudio=null,oldSpeech=null,scanningMode="multi";
+const $=id=>document.getElementById(id);
+const ARTWORKS=[
+ {id:"vangogh",slug:"van-gogh",artist:"Vincent van Gogh",year:"1889",aspect:73.2/93.4,
+ image:"https://images.metmuseum.org/CRDImages/ep/web-large/DP-42549-001.jpg",source:"https://www.metmuseum.org/art/collection/search/436535",
+ titles:{"pt-BR":"Campo de Trigo com Ciprestes","en-US":"Wheat Field with Cypresses"},
+ descriptions:{"pt-BR":"Em 1889, durante sua estadia em Saint-Rémy, Van Gogh pintou a paisagem provençal como se a natureza estivesse em movimento. O trigo dourado, os ciprestes escuros e as nuvens sinuosas revelam suas pinceladas cheias de energia.","en-US":"Painted in Saint-Rémy in 1889, this landscape reveals Van Gogh's energetic vision of nature. Golden wheat, dark cypress trees and swirling clouds seem to move through the Provençal countryside."},
+ narration:{"pt-BR":"./audio/van-gogh-pt-BR.mp3","en-US":"./audio/van-gogh-en-US.mp3"},accent:0xdfbb82,kind:"Relevo 3D"},
+ {id:"onda",slug:"great-wave",artist:"Katsushika Hokusai",year:"c. 1830–32",aspect:25.4/38.1,
+ image:"https://images.metmuseum.org/CRDImages/as/web-large/DP141042.jpg",source:"https://www.metmuseum.org/art/collection/search/39799",
+ titles:{"pt-BR":"A Grande Onda de Kanagawa","en-US":"The Great Wave off Kanagawa"},
+ descriptions:{"pt-BR":"Nesta xilogravura japonesa, uma onda monumental ameaça pequenas embarcações enquanto o monte Fuji surge ao longe. Hokusai constrói uma composição dramática com linhas curvas e tons de azul, transformando o mar em protagonista.","en-US":"A towering wave looms above boats while Mount Fuji appears in the distance. Hokusai uses dramatic curves and shades of blue to turn the sea into the central force of this celebrated Japanese woodblock print."},
+ narration:{"pt-BR":"./audio/great-wave-pt-BR.mp3","en-US":"./audio/great-wave-en-US.mp3"},accent:0x8fcde6,kind:"Efeito AR"},
+ {id:"iris",slug:"irises",artist:"Vincent van Gogh",year:"1890",aspect:73.7/92.1,
+ image:"https://images.metmuseum.org/CRDImages/ep/web-large/DP346474.jpg",source:"https://www.metmuseum.org/art/collection/search/436528",
+ titles:{"pt-BR":"Íris","en-US":"Irises"},
+ descriptions:{"pt-BR":"Van Gogh pintou este buquê de íris em maio de 1890, pouco antes de deixar Saint-Rémy. As flores violetas contrastam com o fundo rosado, cujas cores originais sofreram alterações ao longo do tempo.","en-US":"Van Gogh painted these irises in May 1890, shortly before leaving Saint-Rémy. Purple blossoms stand against a soft pink background; some of the original colors have faded over time."},
+ narration:{"pt-BR":"./audio/irises-pt-BR.mp3","en-US":"./audio/irises-en-US.mp3"},accent:0xb7a3eb,kind:"Efeito AR"},
+ {id:"degas",slug:"dance-class",artist:"Edgar Degas",year:"1874",aspect:83.5/77.2,
+ image:"https://images.metmuseum.org/CRDImages/ep/web-large/DP-20101-001.jpg",source:"https://www.metmuseum.org/art/collection/search/438817",
+ titles:{"pt-BR":"A Aula de Dança","en-US":"The Dance Class"},
+ descriptions:{"pt-BR":"Degas retrata bailarinas e suas mães esperando uma avaliação no antigo espaço de ensaios da Ópera de Paris. O mestre Jules Perrot observa a aluna ao centro enquanto os outros personagens revelam a vida cotidiana do balé.","en-US":"Degas portrays dancers and their mothers awaiting an examination in a rehearsal room of the Paris Opéra. Ballet master Jules Perrot watches a student, while the surrounding figures reveal the everyday world of dance."},
+ narration:{"pt-BR":"./audio/dance-class-pt-BR.mp3","en-US":"./audio/dance-class-en-US.mp3"},accent:0xe7b2a5,kind:"Efeito AR"},
+ {id:"madame",slug:"madame-x",artist:"John Singer Sargent",year:"1883–84",aspect:208.6/109.9,
+ image:"https://images.metmuseum.org/CRDImages/ad/web-large/DP-29006-001.jpg",source:"https://www.metmuseum.org/art/collection/search/12127",
+ titles:{"pt-BR":"Madame X","en-US":"Madame X"},
+ descriptions:{"pt-BR":"O retrato de Virginie Gautreau provocou controvérsia ao ser apresentado no Salão de Paris de 1884. Sargent enfatizou a elegância e a pose ousada da figura, cujo vestido preto contrasta com a pele clara.","en-US":"This portrait of Virginie Gautreau caused controversy at the Paris Salon in 1884. Sargent emphasized the sitter's striking pose and refined appearance, contrasting her black dress with her pale skin."},
+ narration:{"pt-BR":"./audio/madame-x-pt-BR.mp3","en-US":"./audio/madame-x-en-US.mp3"},accent:0xdcbf9b,kind:"Efeito AR"}
+];
+function showView(name){
+ $("landing").classList.toggle("hide",name!=="landing");
+ $("gallery").classList.toggle("hide",name!=="gallery");
+ $("app").classList.toggle("hide",name==="ar");
+ $("ar").classList.toggle("hide",name!=="ar");
+}
+function renderCards(){
+ const target=$("cards");target.replaceChildren();
+ ARTWORKS.forEach((work,index)=>{
+  const card=document.createElement("article");
+  card.className="art-card"+(index===0?" featured":"");
+  const artImage=document.createElement("div");artImage.className="art-image";
+  const image=document.createElement("img");image.src=work.image;image.alt=work.titles["pt-BR"];image.loading=index<2?"eager":"lazy";image.referrerPolicy="no-referrer";
+  const chip=document.createElement("span");chip.className="art-chip";chip.textContent=index===0?"OBRA PRINCIPAL · 3D":"ACERVO · "+String(index+1).padStart(2,"0");
+  artImage.append(image,chip);
+  const caption=document.createElement("div");caption.className="art-content";
+  const tag=document.createElement("small");tag.textContent=work.kind;
+  const h2=document.createElement("h2");h2.textContent=work.titles["pt-BR"];
+  const p=document.createElement("p");p.textContent=work.artist+" · "+work.year;
+  const button=document.createElement("button");button.type="button";button.textContent="Conhecer a obra ↗";
+  button.addEventListener("click",()=>showArtworkDetails(index));
+  caption.append(tag,h2,p,button);
+  card.append(artImage,caption);target.append(card);
+ });
+}
+function showArtworkDetails(index){
+ const work=ARTWORKS[index];
+ $("message-title").textContent=work.titles["pt-BR"];
+ $("message-copy").textContent=work.descriptions["pt-BR"]+" \n\nPara vê-la em realidade aumentada, aponte a câmera para essa imagem após preparar o arquivo multi-alvo.";
+ $("message-continue").textContent="Abrir câmera AR";
+ $("message-continue").onclick=()=>{$("message-overlay").classList.add("hide");void beginAR();};
+ $("message-overlay").classList.remove("hide");
+}
+function showNotice(title,description,continueAction){
+ $("message-title").textContent=title;$("message-copy").textContent=description;
+ $("message-continue").textContent="Continuar";
+ $("message-continue").onclick=()=>{$("message-overlay").classList.add("hide");continueAction?.();};
+ $("message-overlay").classList.remove("hide");
+}
+$("message-cancel").addEventListener("click",()=>{$("message-overlay").classList.add("hide");});
+$("enter").addEventListener("click",()=>{renderCards();showView("gallery");});
+$("back-home").addEventListener("click",()=>showView("landing"));
+$("scan-collection").addEventListener("click",()=>void beginAR());
+function currentWork(){return currentIndex===null?null:ARTWORKS[currentIndex]}
+function currentLanguage(){return $("panel-language").value;}
+function stopNarration(){
+ if(currentAudio){currentAudio.pause();currentAudio.src="";currentAudio=null;}
+ if(window.speechSynthesis)window.speechSynthesis.cancel();
+ oldSpeech=null;
+ $("panel-play").textContent=currentLanguage()==="pt-BR"?"♫ Ouvir":"♫ Listen";
+ $("panel-device-voice").textContent=currentLanguage()==="pt-BR"?"Voz do aparelho (alternativa)":"Device voice (alternative)";
+}
+function fillPanel(index){
+ currentIndex=index;stopNarration();
+ const work=ARTWORKS[index];const pt=currentLanguage()==="pt-BR";
+ $("panel-name").textContent=work.titles[currentLanguage()];
+ $("panel-meta").textContent=work.artist+" · "+work.year;
+ $("panel-description").textContent=work.descriptions[currentLanguage()];
+ $("panel-info").textContent=pt?"ⓘ História":"ⓘ Story";
+ $("panel-hide").textContent=pt?"Ocultar":"Hide";
+ $("panel-source").href=work.source;
+ $("ar-mini").textContent=pt?"ⓘ Informações":"ⓘ Details";
+ $("ar-note").textContent=index===0
+  ?(pt?"Relevo 3D experimental da obra, vinculado ao rastreamento da imagem.":"Experimental 3D relief anchored to the painting.")
+  :(pt?"Efeito visual AR experimental; a reconstrução 3D individual desta obra está em desenvolvimento.":"Experimental AR effect; a dedicated 3D model for this artwork is still in development.");
+ $("ar-panel").classList.remove("hide","compact");
+ $("panel-extended").classList.add("hide");
+ $("ar-mini").classList.add("hide");
+ clearTimeout(compactTimeout);
+ compactTimeout=setTimeout(()=>{
+  if(currentIndex===index&&!$("ar-panel").classList.contains("hide")&&$("panel-extended").classList.contains("hide"))
+   $("ar-panel").classList.add("compact");
+ },3500);
+}
+$("panel-language").addEventListener("change",()=>{
+ if(currentIndex!==null)fillPanel(currentIndex);
+});
+$("panel-collapse").addEventListener("click",()=>{
+ clearTimeout(compactTimeout);
+ $("ar-panel").classList.toggle("compact");
+});
+$("panel-info").addEventListener("click",()=>{
+ clearTimeout(compactTimeout);
+ $("ar-panel").classList.remove("compact");
+ $("panel-extended").classList.toggle("hide");
+});
+$("panel-hide").addEventListener("click",()=>{
+ clearTimeout(compactTimeout);
+ $("ar-panel").classList.add("hide");$("ar-mini").classList.remove("hide");
+});
+$("ar-mini").addEventListener("click",()=>{
+ $("ar-mini").classList.add("hide");$("ar-panel").classList.remove("hide","compact");
+});
+$("panel-play").addEventListener("click",()=>{
+ const work=currentWork();if(!work)return;
+ if(currentAudio){stopNarration();return;}
+ stopNarration();
+ const lang=currentLanguage(),path=work.narration[lang];
+ const audio=new Audio(path);
+ currentAudio=audio;$("panel-play").textContent=lang==="pt-BR"?"■ Parar":"■ Stop";
+ audio.onended=()=>{if(currentAudio===audio)stopNarration();};
+ audio.onerror=()=>{
+  if(currentAudio!==audio)return;
+  stopNarration();
+  $("ar-panel").classList.remove("compact","hide");
+  $("panel-extended").classList.remove("hide");
+  $("ar-note").textContent=lang==="pt-BR"
+   ?"A narração MP3 ainda não está disponível. Gere os áudios ou use a voz do aparelho como alternativa."
+   :"The recorded audio is not ready yet. Generate the MP3 files or use the device voice as an alternative.";
+ };
+ const p=audio.play();
+ if(p&&p.catch)p.catch(()=>{if(currentAudio===audio){stopNarration();$("ar-panel").classList.remove("compact","hide");$("panel-extended").classList.remove("hide");}});
+});
+$("panel-device-voice").addEventListener("click",()=>{
+ if(oldSpeech){stopNarration();return;}
+ const work=currentWork();if(!work||!window.speechSynthesis)return;
+ stopNarration();
+ const utterance=new SpeechSynthesisUtterance(work.descriptions[currentLanguage()]);
+ utterance.lang=currentLanguage();utterance.rate=.96;
+ oldSpeech=utterance;
+ $("panel-device-voice").textContent=currentLanguage()==="pt-BR"?"■ Parar voz":"■ Stop voice";
+ utterance.onend=utterance.onerror=()=>{if(oldSpeech===utterance)stopNarration();};
+ window.speechSynthesis.speak(utterance);
+});
+function hideArtwork(index){
+ if(currentIndex!==index)return;
+ currentIndex=null;stopNarration();clearTimeout(compactTimeout);
+ $("ar-panel").classList.add("hide");$("ar-mini").classList.add("hide");
+ $("scanner").classList.remove("hide");
+ $("camera-status").textContent="Procurando obra na galeria...";
+}
+function addAugmentedArtwork(group,work){
+ const height=work.aspect;
+ const points=[new THREE.Vector3(-.5,-height/2,.012),new THREE.Vector3(.5,-height/2,.012),new THREE.Vector3(.5,height/2,.012),new THREE.Vector3(-.5,height/2,.012)];
+ const line=new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(points),
+  new THREE.LineBasicMaterial({color:work.accent,transparent:true,opacity:.8}));
+ group.add(line);
+ const count=20;const particles=new THREE.Group();
+ const mat=new THREE.MeshBasicMaterial({color:work.accent,transparent:true,opacity:.5,depthWrite:false});
+ for(let i=0;i<count;i++){
+  const orb=new THREE.Mesh(new THREE.OctahedronGeometry(.004+(i%3)*.002,0),mat);
+  orb.position.set(((i*97)%100)/100-.5,((i*43)%100)/100*height-height/2,.025+(i%4)*.01);
+  orb.userData={baseY:orb.position.y,phase:i*1.6};
+  particles.add(orb);
+ }
+ group.add(particles);
+ return t=>{
+  particles.children.forEach(o=>{
+   o.position.y=o.userData.baseY+Math.sin(t*.9+o.userData.phase)*.015;
+   o.rotation.z=t*.45;
+  });
+ };
+}
+async function addVanGoghRelief(group,height){
+ const loader=new GLTFLoader();
+ const gltf=await loader.loadAsync("./models/van_gogh_relevo_mobile.glb");
+ const scene=gltf.scene;
+ scene.traverse(mesh=>{
+  if(!mesh.isMesh)return;
+  mesh.material=new THREE.MeshStandardMaterial({vertexColors:true,roughness:1,metalness:0,side:THREE.DoubleSide});
+ });
+ const box=new THREE.Box3().setFromObject(scene),dim=box.getSize(new THREE.Vector3());
+ if(dim.x<=0||dim.y<=0)throw new Error("Dimensões inválidas no modelo GLB.");
+ scene.scale.set(1/dim.x,height/dim.y,1);
+ const center=box.getCenter(new THREE.Vector3());
+ scene.position.set(-center.x*scene.scale.x,-center.y*scene.scale.y,-box.min.z);
+ const pivot=new THREE.Group();pivot.position.z=.01;pivot.add(scene);group.add(pivot);
+ group.add(new THREE.HemisphereLight(0xffffff,0x536077,2.0));
+ const light=new THREE.DirectionalLight(0xffffff,1.3);light.position.set(-.3,.6,1.3);group.add(light);
+}
+async function checkTargetFiles(){
+ const head=async path=>{
+  try{const r=await fetch(path,{method:"HEAD",cache:"no-store"});return r.ok&&!(r.headers.get("content-type")||"").includes("text/html");}
+  catch{return false;}
+ };
+ if(await head("./galeria-targets.mind"))return {path:"./galeria-targets.mind",multi:true};
+ if(await head("./targets.mind"))return {path:"./targets.mind",multi:false};
+ return null;
+}
+async function beginAR(){
+ if(starting||started)return;
+ if(!window.isSecureContext||!navigator.mediaDevices?.getUserMedia){
+  showNotice("Câmera exige HTTPS","Abra o site via localhost no computador ou HTTPS no celular, usando Cloudflare Tunnel.",null);
+  return;
+ }
+ const target=await checkTargetFiles();
+ if(!target){
+  showNotice("Preparar os alvos da galeria","Ainda não encontramos galeria-targets.mind. É preciso compilar as cinco imagens na ordem da galeria e salvar esse arquivo junto de galeria.html. Consulte o guia do projeto.",null);
+  return;
+ }
+ if(!target.multi){
+  showNotice("Galeria em modo de demonstração","O arquivo multi-alvo ainda não está instalado. Por enquanto a câmera reconhecerá apenas Campo de Trigo com Ciprestes, que já funciona. Para reconhecer todas as cinco obras automaticamente, gere galeria-targets.mind a partir das cinco imagens, na ordem do acervo.",()=>void startAR(target));
+  return;
+ }
+ await startAR(target);
+}
+async function startAR(target){
+ if(starting||started)return;starting=true;scanningMode=target.multi?"multi":"single";
+ showView("ar");$("scanner").classList.remove("hide");$("camera-status").textContent="Iniciando rastreamento MindAR...";
+ try{
+  const modules=await Promise.all([import("three"),import("mindar-image-three"),import("three/addons/loaders/GLTFLoader.js")]);
+  THREE=modules[0];MindARThree=modules[1].MindARThree;GLTFLoader=modules[2].GLTFLoader;
+  ar=new MindARThree({container:$("camera"),imageTargetSrc:target.path,uiLoading:"yes",uiScanning:"no",maxTrack:1});
+  const animations=[];
+  const count=target.multi?ARTWORKS.length:1;
+  for(let i=0;i<count;i++){
+   const work=ARTWORKS[i],anchor=ar.addAnchor(i);
+   animations.push(addAugmentedArtwork(anchor.group,work));
+   if(i===0){
+    try{await addVanGoghRelief(anchor.group,work.aspect);}catch(e){console.warn("GLB do Van Gogh não carregou",e);}
+   }
+   anchor.onTargetFound=()=>{
+    currentIndex=i;
+    $("scanner").classList.add("hide");
+    $("camera-status").textContent="● "+work.titles[currentLanguage()];
+    fillPanel(i);
+   };
+   anchor.onTargetLost=()=>hideArtwork(i);
+  }
+  await ar.start();started=true;
+  const clock=new THREE.Clock();
+  ar.renderer.setAnimationLoop(()=>{
+   const t=clock.getElapsedTime();
+   for(const draw of animations)draw(t);
+   ar.renderer.render(ar.scene,ar.camera);
+  });
+  $("camera-status").textContent=target.multi?"Buscando as cinco obras...":"Buscando Van Gogh (modo de teste)...";
+ }catch(e){
+  console.error(e);
+  await endAR();
+  showNotice("Não foi possível iniciar a câmera",String(e?.message||e),null);
+ }finally{starting=false;}
+}
+async function endAR(){
+ clearTimeout(compactTimeout);
+ stopNarration();currentIndex=null;
+ if(ar){
+  try{ar.renderer.setAnimationLoop(null);await ar.stop();}catch(e){console.warn(e);}
+  ar=null;
+ }
+ $("camera").replaceChildren();
+ started=false;showView("gallery");
+ $("ar-panel").classList.add("hide");$("ar-mini").classList.add("hide");
+}
+$("exit-ar").addEventListener("click",()=>void endAR());
+window.addEventListener("pagehide",()=>{stopNarration();if(ar)void endAR();});
+</script>
+</body>
+</html>
