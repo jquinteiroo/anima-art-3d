@@ -16,9 +16,9 @@ A galeria conta com quatro obras públicas do Metropolitan Museum of Art: `Campo
 
 **Funcionalidades implementadas:** catálogo com fichas, câmera WebAR MindAR preparada para quatro alvos, HUD contextual à obra reconhecida, escolha PT-BR/EN, narrações MP3 opcionais e efeitos visuais. A obra `Campo de Trigo com Ciprestes` mantém o relevo GLB otimizado; os demais quadros têm efeitos AR iniciais, **ainda sem GLBs próprios**.
 
-**Próximo passo técnico obrigatório:** compilar `galeria-targets.mind` com as quatro imagens, na ordem cadastrada, para habilitar e testar o reconhecimento simultâneo. Sem esse arquivo, a galeria recorre ao `targets.mind` antigo de Van Gogh em modo de demonstração. O script [`preparar_alvos_galeria.py`](frontend/poc-mindar/preparar_alvos_galeria.py) automatiza o download das quatro imagens públicas; o compilador oficial MindAR cria o arquivo binário multi-alvo. Instruções completas em [`frontend/poc-mindar/README.md`](frontend/poc-mindar/README.md).
+**Alvos MindAR disponíveis:** o arquivo [`galeria-targets-novas.mind`](frontend/poc-mindar/galeria-targets-novas.mind), enviado em 23/10/2026, contém os três alvos **Grande Onda, Aula de Dança e Íris**, nesta ordem (verificada pela decodificação dos dados de rastreamento). A galeria já associa os índices às HUDs corretas. O Van Gogh continua utilizando o antigo `targets.mind` local. Para unir os quatro em um arquivo completo `galeria-targets.mind`, utilize [`combinar_alvos_galeria.py`](frontend/poc-mindar/combinar_alvos_galeria.py); é necessário ter o arquivo original do Van Gogh na mesma pasta. Instruções completas em [`frontend/poc-mindar/README.md`](frontend/poc-mindar/README.md).
 
-**Validação:** interface e JavaScript inspecionados estaticamente. O novo fluxo multi-alvo ainda aguarda teste físico com a câmera do celular.
+**Validação:** arquivo `.mind` novo analisado (versão 2, três alvos identificados) e integração JavaScript conferida estaticamente; ainda é necessário testar o rastreamento e o alinhamento da HUD no iPhone.
 
 ---
 
