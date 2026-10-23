@@ -1,11 +1,13 @@
-# Galeria Anima Art — quatro obras com projeções animadas
+# Museu Aurora — guia de visita com realidade aumentada
+
+A entrada em `galeria.html` apresenta o **Museu Aurora**, um museu fictício para demonstração acadêmica, e a exposição **Pinturas em movimento**. Antes de começar, o visitante encontra o contexto do espaço, as quatro obras, o tempo sugerido e as instruções de uso. **Começar visita em RA** abre diretamente a experiência de câmera; **Explorar as 4 obras** leva ao catálogo. As opções técnicas ficam recolhidas em **Opções de demonstração**. A identidade visual e as adaptações para celular estão em `museu.css`.
 
 O modo padrão **Câmera: quatro obras animadas** reconhece as quatro imagens fornecidas para o estudo e mostra a mesma projeção 2.5D aprovada na prévia, ancorada à pintura. Não é necessário gerar alvos ou inserir uma chave de API.
 
 ## Testar no celular
 
 1. Publique a pasta `frontend/poc-mindar` inteira em HTTPS ou utilize seu servidor local com túnel HTTPS.
-2. Abra `index.html`, toque **Iniciar experiência** e **Abrir câmera AR**.
+2. Abra `galeria.html` e toque **Começar visita em RA**. Também é possível explorar o catálogo e escolher **Explorar em realidade aumentada**.
 3. Permita a câmera e aponte para uma das [imagens de referência](estudos/alvos.html), exibida em outra tela ou impressa.
 4. Ao reconhecer a obra, a animação correspondente aparece automaticamente, com a HUD e a narração já existentes.
 5. **Pausar / Retomar** controla a animação. Ao perder o alvo, a projeção fica oculta e seu tempo para; ao reencontrá-lo, continua. O painel se recolhe como antes.

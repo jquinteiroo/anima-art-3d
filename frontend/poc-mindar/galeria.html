@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0c111b">
-<title>Galeria Virtual de Realidade Aumentada | Anima Art 3D</title>
+<title>Museu Aurora — guia de visita em realidade aumentada</title>
+<meta name="description" content="Conheça o Museu Aurora, um museu fictício com quatro obras para explorar em realidade aumentada. Descubra a exposição e comece sua visita pelo celular.">
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/","mindar-image-three":"https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"}}</script>
 <style>
 :root{color-scheme:dark;--bg:#0b101a;--ink:#f7f1e9;--mute:#adb3c2;--gold:#d7b78b;--panel:#101c2aea}
@@ -87,29 +88,47 @@
 #tracking-choice option{background:#142537}
 .target-file-button:has(+ .target-file-input:focus-visible){outline:2px solid #f6dbac;outline-offset:3px}
 </style>
+<link rel="stylesheet" href="museu.css">
 </head>
 <body>
 <div id="camera"></div>
 <div id="app">
-  <div class="brand"><span class="brand-symbol">✳</span> ANIMA ART 3D <span style="opacity:.5">/ MUSEUM</span></div>
+  <header class="museum-header">
+    <button id="museum-home" class="museum-brand" aria-label="Museu Aurora — início"><svg viewBox="0 0 40 44" aria-hidden="true"><path d="M5 40V20a15 15 0 0 1 30 0v20M13 40V21a7 7 0 0 1 14 0v19M1 40h38"/></svg><span>AURORA<small>MUSEU EXPERIMENTAL</small></span></button>
+    <nav aria-label="Guia do museu"><a id="museum-about" href="#sobre">O museu</a><a id="museum-how" href="#como-visitar">Como visitar</a><button id="museum-collection">Ver obras <span aria-hidden="true">↗</span></button></nav>
+    <span class="museum-demo">Museu fictício <span>·</span> Anima Art 3D</span>
+  </header>
   <section id="landing">
-    <img class="hero-art left" src="https://images.metmuseum.org/CRDImages/as/web-large/DP141042.jpg" alt="" aria-hidden="true">
-    <img class="hero-art right" src="https://images.metmuseum.org/CRDImages/ep/web-large/DP-42549-001.jpg" alt="" aria-hidden="true">
-    <div class="hero">
-      <div class="eyebrow">Uma nova forma de observar a arte</div>
-      <h1>Galeria virtual de <em>realidade aumentada.</em></h1>
-      <p>Explore grandes obras da história da arte. Descubra detalhes, ouça suas histórias e veja pinturas ganharem profundidade através da câmera do seu celular.</p>
-      <button id="enter" class="primary" type="button">Iniciar experiência <span aria-hidden="true">↗</span></button>
-      <span class="hero-note">04 OBRAS · PT-BR / EN · SEM INSTALAR APLICATIVO</span>
+    <div class="museum-location"><span>GUIA DIGITAL DE VISITA</span><span>Museu Aurora <b>/</b> Galeria virtual 01</span></div>
+    <div class="museum-hero">
+      <div class="museum-hero-copy">
+        <p class="museum-kicker"><span></span> EXPOSIÇÃO · PINTURAS EM MOVIMENTO</p>
+        <h1>A arte ganha vida em <em>realidade aumentada.</em></h1>
+        <p class="museum-lead">Bem-vindo ao Museu Aurora, um museu fictício criado para explorar novas formas de ver a arte. Nesta visita, seu celular revela movimento e profundidade em quatro pinturas.</p>
+        <div class="museum-cta"><button id="visit-ar" class="primary" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h4l2-3h4l2 3h4v13H4z"/><circle cx="12" cy="13" r="4"/></svg>Começar visita em RA <span aria-hidden="true">↗</span></button><button id="enter" class="museum-secondary" type="button">Explorar as 4 obras <span aria-hidden="true">→</span></button></div>
+        <p class="museum-camera-note">Use a câmera do celular · Sem instalar aplicativo<br>A permissão da câmera será solicitada ao iniciar a visita.</p>
+      </div>
+      <figure class="museum-hero-art">
+        <div class="museum-art-frame"><img src="./estudos/assets/onda.jpg" alt="A Grande Onda, de Hokusai: ondas azuis em torno de pequenas embarcações, com o monte Fuji ao fundo."><span class="museum-ar-badge"><span aria-hidden="true">⌗</span> EXPLORE EM REALIDADE AUMENTADA</span></div>
+        <figcaption><span>01 / UM NOVO OLHAR SOBRE A OBRA</span><span>Hokusai · A Grande Onda</span></figcaption>
+        <div class="museum-layer-note" aria-hidden="true">ARTE + PROFUNDIDADE + MOVIMENTO</div>
+      </figure>
     </div>
+    <div class="museum-facts" aria-label="Informações da visita"><div><b>01</b><span>galeria virtual<small>Exposição demonstrativa</small></span></div><div><b>04</b><span>obras com RA<small>Hokusai, Van Gogh e Degas</small></span></div><div><b>10–15</b><span>minutos de visita<small>Tempo sugerido, no seu ritmo</small></span></div><div><b>PT / EN</b><span>histórias para descobrir<small>Textos e opções de narração</small></span></div></div>
+    <section id="sobre" class="museum-about"><div><p class="museum-section-label">VOCÊ ESTÁ NO MUSEU AURORA</p><h2>Um encontro entre<br>arte e tecnologia.</h2></div><div><p>Este é um espaço virtual de experimentação. A exposição <strong>Pinturas em movimento</strong> reúne quatro reproduções para uma visita em que observar também é interagir.</p><p>O guia apresenta o contexto de cada obra. Com a <strong>realidade aumentada</strong>, a pintura reconhecida pela câmera recebe uma projeção animada, que acompanha seu enquadramento.</p><span class="museum-fiction">Museu e exposição fictícios, criados para demonstração acadêmica.</span></div></section>
+    <section id="como-visitar" class="museum-how"><div class="museum-section-heading"><div><p class="museum-section-label">SEU CELULAR É O GUIA</p><h2>Da pintura à experiência.</h2></div><span>Três passos para começar</span></div><ol><li><span class="museum-step">01</span><h3>Abra a câmera</h3><p>Toque em “Começar visita em RA” e permita o acesso à câmera do seu celular.</p></li><li><span class="museum-step">02</span><h3>Enquadre uma obra</h3><p>Aponte para uma das quatro imagens, impressa ou exibida em outra tela. Mantenha a pintura inteira visível.</p></li><li><span class="museum-step">03</span><h3>Descubra o movimento</h3><p>A projeção aparece sobre a obra reconhecida. Mova o celular suavemente, leia sua história e explore a narração.</p></li></ol><p class="museum-remote">Visitando à distância? <a href="./estudos/alvos.html" target="_blank" rel="noopener">Abra as imagens em outra tela ↗</a> e use o celular para reconhecê-las.</p></section>
+    <section class="museum-route"><div class="museum-section-heading"><div><p class="museum-section-label">GALERIA VIRTUAL 01</p><h2>Quatro paradas, novos olhares.</h2></div><button id="museum-route-open" class="museum-route-link">Conhecer as obras →</button></div><div class="museum-route-grid"><figure><img src="./estudos/assets/campo.jpg" alt="Campo de Trigo com Ciprestes" loading="lazy"><figcaption><small>PARADA 01 · VAN GOGH</small><h3>O vento na paisagem</h3><p>Campo de Trigo com Ciprestes</p></figcaption></figure><figure><img src="./estudos/assets/onda.jpg" alt="A Grande Onda" loading="lazy"><figcaption><small>PARADA 02 · HOKUSAI</small><h3>A força do mar</h3><p>A Grande Onda</p></figcaption></figure><figure><img src="./estudos/assets/iris.jpg" alt="Íris" loading="lazy"><figcaption><small>PARADA 03 · VAN GOGH</small><h3>A delicadeza das flores</h3><p>Íris</p></figcaption></figure><figure><img src="./estudos/assets/danca.jpg" alt="A Aula de Dança" loading="lazy"><figcaption><small>PARADA 04 · DEGAS</small><h3>O gesto e o instante</h3><p>A Aula de Dança</p></figcaption></figure></div></section>
+    <footer class="museum-footer"><span>MUSEU AURORA <b>×</b> ANIMA ART 3D</span><p>Guia experimental com realidade aumentada.<br>Museu fictício · Projeto acadêmico · Reproduções de obras de arte.</p><a href="#landing">Voltar ao início ↑</a></footer>
   </section>
   <section id="gallery" class="hide" aria-label="Obras da galeria">
     <div class="gallery-top">
-      <div><div class="eyebrow">Acervo digital · edição 01</div><h1>Explore a coleção</h1>
-        <p>Escolha uma obra para conhecer sua história ou ative a câmera e aponte para qualquer pintura cadastrada.</p>
+      <div><div class="eyebrow">Museu Aurora / Galeria virtual 01</div><h1>Pinturas em movimento</h1>
+        <p>Seu percurso pela exposição. Conheça a história de cada obra ou abra a câmera para explorá-la em realidade aumentada.</p>
       </div>
       <div class="gallery-actions">
-        <button id="back-home" class="ghost" type="button">← Início</button>
+        <button id="back-home" class="ghost" type="button">← Guia do museu</button>
+        <button id="scan-collection" class="primary" type="button">◉ Explorar em realidade aumentada</button>
+        <details class="museum-technical"><summary>Opções de demonstração</summary><div>
         <select id="tracking-choice" aria-label="Quais obras reconhecer" title="Escolha quais obras detectar">
           <option value="animadas" selected>Câmera: quatro obras animadas</option>
           <option value="novas">Teste anterior: três obras</option>
@@ -117,16 +136,17 @@
         </select>
         <label class="ghost target-file-button" for="target-upload">Usar arquivo .mind</label>
         <input id="target-upload" type="file" accept=".mind,application/octet-stream" class="target-file-input">
-        <button id="scan-collection" class="primary" type="button">◉ Abrir câmera AR</button>
+        <a href="https://hiukim.github.io/mind-ar-js-doc/tools/compile/" target="_blank" rel="noopener noreferrer">Compilador de imagens ↗</a>
+        </div></details>
       </div>
     </div>
     <div id="cards" class="cards"></div>
-    <p class="gallery-hint">As quatro pinturas já têm reconhecimento e relevo animado preparados. Use a mesma imagem de referência exibida nos cartões. <a href="./estudos/alvos.html" target="_blank" rel="noopener">Abrir imagens para testar ↗</a></p>
+    <p class="gallery-hint">Para uma visita à distância, <a href="./estudos/alvos.html" target="_blank" rel="noopener">abra as imagens em outra tela ↗</a> e aponte a câmera do celular. Use a reprodução completa para reconhecer a obra.</p>
   </section>
 </div>
 <div id="ar" class="hide">
   <div class="ar-gradient"></div>
-  <div class="scan-header"><div><span>ANIMA ART 3D / MUSEUM</span><strong>Galeria Virtual AR</strong></div><button class="exit" id="exit-ar">Encerrar ×</button></div>
+  <div class="scan-header"><div><span>MUSEU AURORA / ANIMA ART 3D</span><strong>Visita em realidade aumentada</strong></div><button class="exit" id="exit-ar">Encerrar ×</button></div>
   <div class="scanner" id="scanner"><div class="corners"></div><p id="scanner-label">Aponte a câmera para uma das quatro obras</p></div>
   <div id="ar-panel" class="hide" aria-label="Informações da obra reconhecida">
     <div class="panel-title">
@@ -148,7 +168,6 @@
 <div id="message-overlay" class="hide">
   <div class="message-card"><h2 id="message-title">Configuração de reconhecimento</h2><p id="message-copy"></p>
     <button id="message-continue" type="button">Continuar</button>
-    <a href="https://hiukim.github.io/mind-ar-js-doc/tools/compile/" target="_blank" rel="noopener noreferrer">Compilador MindAR ↗</a>
     <button id="message-cancel" type="button">Voltar à galeria</button>
   </div>
 </div>
@@ -196,10 +215,10 @@ function renderCards(){
   card.className="art-card"+(index===0?" featured":"");
   const artImage=document.createElement("div");artImage.className="art-image";
   const image=document.createElement("img");image.src='./estudos/assets/'+['campo.jpg','onda.jpg','iris.jpg','danca.jpg'][index];image.alt=work.titles["pt-BR"];image.loading=index<2?"eager":"lazy";
-  const chip=document.createElement("span");chip.className="art-chip";chip.textContent=index===0?"OBRA PRINCIPAL · 2.5D":"ACERVO · "+String(index+1).padStart(2,"0");
+  const chip=document.createElement("span");chip.className="art-chip";chip.textContent="PARADA "+String(index+1).padStart(2,"0")+" · MUSEU AURORA";
   artImage.append(image,chip);
   const caption=document.createElement("div");caption.className="art-content";
-  const tag=document.createElement("small");tag.textContent='Relevo animado · 2.5D';
+  const tag=document.createElement("small");tag.textContent='Explore em realidade aumentada';
   const h2=document.createElement("h2");h2.textContent=work.titles["pt-BR"];
   const p=document.createElement("p");p.textContent=work.artist+" · "+work.year;
   const button=document.createElement("button");button.type="button";button.textContent="Conhecer a obra ↗";
@@ -211,7 +230,7 @@ function renderCards(){
 function showArtworkDetails(index){
  const work=ARTWORKS[index];
  $("message-title").textContent=work.titles["pt-BR"];
- $("message-copy").textContent=work.descriptions["pt-BR"]+" \n\nNo modo de quatro obras animadas, basta abrir a câmera e apontar para a imagem de referência. Os alvos já estão incluídos.";
+ $("message-copy").textContent=work.descriptions["pt-BR"]+" \n\nVeja esta pintura ganhar movimento e profundidade. Abra a câmera e enquadre a imagem completa, impressa ou exibida em outra tela, para explorar a obra em realidade aumentada.";
  $("message-continue").textContent="Abrir câmera AR";
  $("message-continue").onclick=()=>{$("message-overlay").classList.add("hide");void beginAR();};
  $("message-overlay").classList.remove("hide");
@@ -223,8 +242,16 @@ function showNotice(title,description,continueAction){
  $("message-overlay").classList.remove("hide");
 }
 $("message-cancel").addEventListener("click",()=>{$("message-overlay").classList.add("hide");});
-$("enter").addEventListener("click",()=>{renderCards();showView("gallery");});
-$("back-home").addEventListener("click",()=>showView("landing"));
+$("enter").addEventListener("click",openMuseumCollection);
+function openMuseumCollection(){renderCards();showView('gallery');window.scrollTo(0,0);}
+function openMuseumHome(){showView('landing');window.scrollTo(0,0);}
+$("museum-collection").addEventListener('click',openMuseumCollection);
+$("museum-route-open").addEventListener('click',openMuseumCollection);
+$("museum-home").addEventListener('click',openMuseumHome);
+$("museum-about").addEventListener('click',()=>showView('landing'));
+$("museum-how").addEventListener('click',()=>showView('landing'));
+$("visit-ar").addEventListener('click',()=>{renderCards();void beginAR();});
+$("back-home").addEventListener("click",openMuseumHome);
 $("scan-collection").addEventListener("click",()=>void beginAR());
 async function detectMindTargets(file){
  // No MindAR v2 o campo msgpack "dataList" contém um array fix-size.
