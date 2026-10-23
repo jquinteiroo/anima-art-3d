@@ -121,20 +121,50 @@ Os roteiros, nomes dos arquivos e vozes de geração ficam em [`audio/narrations
 
 ## Informações da obra e audiodescrição
 
-Tanto a demonstração estável (`index.html`) quanto a versão com pintura animada (`animada.html`) incluem, no modo **Van Gogh**:
+A demo estável (`index.html`) e a versão com pintura animada (`animada.html`) incluem informações sobre a obra. A versão animada também oferece PT-BR/EN e narrações em MP3:
 
 - resumo histórico na tela (obra, artista e técnica);
 - seção expansível **Conheça a história da obra**, com descrição do campo, céu, ciprestes, pinceladas e contexto de Saint-Rémy;
-- narração em português pela Web Speech API, com botão para iniciar ou parar;
+- narração em português pela Web Speech API na demo `index.html`; na `animada.html`, o padrão são os arquivos MP3 neurais em português e inglês, com alternativa explícita para a voz do aparelho;
 - referência ao registro oficial do [Metropolitan Museum of Art](https://www.metmuseum.org/art/collection/search/436535).
 
-As informações foram redigidas a partir do registro curatorial público do Met. A narração é produzida pelo navegador (voz sintética, que varia conforme o dispositivo), e não por áudio oficial do museu.
+As informações foram redigidas a partir do registro curatorial público do Met. As narrações são sintéticas e não são áudios oficiais do museu. Os arquivos MP3 de `animada.html` precisam ser gerados conforme as instruções acima antes da reprodução.
+
+## Relevo 3D otimizado da obra de Van Gogh
+
+Na versão [`animada.html`](animada.html), escolha **Van Gogh — obra real** e inicie a câmera. Assim que o MindAR reconhecer o alvo, o Three.js carrega automaticamente:
+
+```text
+frontend/poc-mindar/models/van_gogh_relevo_mobile.glb
+```
+
+O modelo GLB (aproximadamente 2,8 MB; 73.587 vértices e 145.896 triângulos) contém a geometria em relevo e as cores nos próprios vértices; não precisa de `.mtl` nem de textura externa. Ele tem a frente orientada para o eixo **+Z**. Um `GLTFLoader` importa a malha e a posiciona sobre o mesmo alvo MindAR da pintura, respeitando a largura do alvo e ajustando a altura. Os placeholders geométricos (anel/esfera/cones) **não aparecem** no modo Van Gogh; continuam disponíveis apenas no teste genérico.
+
+Em **Informações → Visualização da pintura**, existem dois modos:
+
+- **Relevo 3D (GLB otimizado)** (padrão): permite inclinar o celular para perceber profundidade e ajustar `Profundidade do relevo` entre 20% e 200%; o relevo permanece ancorado à pintura;
+- **Pintura animada (versão anterior)**: aplica o shader de céu, trigo e ciprestes a `painting.jpg`, com controle de intensidade e pausa. Este modo só depende da textura quando solicitado; trocar para ele não apaga o modelo 3D.
+
+O GLB por si só é um **relevo estático (2.5D)**, e não faz as árvores ou nuvens se moverem de forma independente. A animação da textura continua separada para comparação, sem fingir que o relevo já é uma cena 3D completa.
+
+### Teste local
+
+```powershell
+cd "$env:USERPROFILE\Documents\GitHub\anima-art-3d\anima-art-3d-repo"
+git pull origin master
+cd frontend\poc-mindar
+python -m http.server 8000
+```
+
+Abra `http://localhost:8000/animada.html` para testar a página no computador. Para usar a câmera do iPhone, execute o Cloudflare Quick Tunnel **em outro terminal**, sem fechar o Python, e abra `https://<novo-endereco>.trycloudflare.com/animada.html`. O link antigo de um túnel encerrado deixa de funcionar.
+
+Para conferir que o GLB é servido, abra `http://localhost:8000/models/van_gogh_relevo_mobile.glb`: o navegador deve baixar/abrir um binário, não retornar 404. O navegador deve ter suporte a WebGL. O desempenho e o posicionamento na câmera real ainda precisam ser validados no dispositivo.
 
 ## Sobre a demonstração
 
-Quando a imagem é encontrada, o Three.js desenha uma moldura, elementos visuais animados e um objeto dourado 3D alinhados ao target. Um painel e a narração demonstrativa também são habilitados.
+Na demo **`index.html`** e no **alvo genérico** de `animada.html`, o Three.js ainda desenha elementos de teste (moldura e objeto dourado 3D). Já na obra de **Van Gogh** em `animada.html`, o conteúdo principal passou a ser o **relevo 3D GLB** alinhado ao alvo. O painel compacto e as narrações continuam disponíveis.
 
-**O que ainda não está incluído:** reconhecimento ORB/MobileNetV2, animação realista do cavalo, cenário 2.5D completo e testes de desempenho validados em smartphone. Esta POC prova apenas rastreamento espacial e renderização AR.
+**O que ainda não está incluído:** reconhecimento ORB/MobileNetV2, animação realista do cavalo, reconstrução completa de cena 3D com elementos independentes e testes de desempenho validados em smartphone. Esta POC prova apenas rastreamento espacial e renderização AR.
 
 ## Fontes
 
