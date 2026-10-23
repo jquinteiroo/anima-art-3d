@@ -6,35 +6,90 @@ A demo tem **dois modos**:
 - **Alvo oficial MindAR:** já possui um `.mind` hospedado na documentação do projeto e permite testar imediatamente.
 - **Van Gogh — Campo de Trigo com Ciprestes:** exige o arquivo `targets.mind` compilado a partir da pintura escolhida.
 
-## Qual página abrir? (importante)
+## Galeria Virtual AR (nova página inicial)
 
-- [`index.html`](index.html): **entrada principal**, redireciona automaticamente para `animada.html?mode=art`.
-- [`animada.html`](animada.html): **versão atual**, HUD compacta, relevo GLB otimizado, narração PT-BR/EN e shader opcional.
-- [`index-tecnico.html`](index-tecnico.html): **prova de conceito antiga**, preservada com painel grande, anel dourado e cipreste geométrico, só para comparar o rastreamento.
+**Status:** a interface da galeria com cinco obras, animação de entrada, câmera MindAR multi-alvo e HUD dinâmica está implementada. Para reconhecer **todas** as obras ao apontar a câmera, ainda precisa gerar e testar o arquivo **`galeria-targets.mind` com os cinco alvos**. Até lá, a câmera pode funcionar em modo de demonstração apenas com Van Gogh usando `targets.mind`. A galeria visual funciona mesmo sem o multi-alvo.
 
-**Se aparecer “ALVO ENCONTRADO · RASTREAMENTO ATIVO” num painel grande junto de esfera dourada e cone verde, você abriu a demo antiga**, não o GLB. Atualize o projeto e abra `/animada.html?mode=art` no Safari. Se necessário, use `/animada.html?mode=art&v=3d` para contornar cache da URL.
+### Jornada do visitante
 
-## Publicação e teste no celular
+1. Abrir `index.html` (redireciona para `galeria.html`).
+2. Ver a abertura **“Galeria virtual de realidade aumentada”** com botão **Iniciar experiência**.
+3. Ao tocar **Iniciar**, as cinco obras aparecem em cards com animação de entrada.
+4. O visitante pode conhecer o contexto de cada quadro ou tocar **Abrir câmera AR**.
+5. Com o arquivo multi-alvo correto, o MindAR detecta qual das cinco imagens está no enquadramento e mostra a HUD **daquela obra**, com artista, ano, história e escolha de idioma PT/EN.
+6. O primeiro Van Gogh usa o relevo real `models/van_gogh_relevo_mobile.glb`; as outras quatro têm efeitos de rastreamento/partículas e moldura AR iniciais, **não são modelos 3D completos ainda**. A HUD se recolhe automaticamente, e o visitante pode reabrir.
 
-Sirva a pasta `frontend/poc-mindar` inteira, mantendo a estrutura:
+### Acervo (ordem dos índices MindAR)
 
-```text
-poc-mindar/
-├── index.html           # redireciona para a demo atual
-├── animada.html         # demonstração atual
-├── index-tecnico.html   # prova de conceito antiga
-├── targets.mind         # imagem-alvo compilada no MindAR
-├── painting.jpg         # imagem idêntica à usada para compilar o alvo (shader opcional)
-├── models/
-│   └── van_gogh_relevo_mobile.glb
-└── audio/
-    ├── van-gogh-pt-BR.mp3    # gerado pelo script, não versionado inicialmente
-    └── van-gogh-en-US.mp3    # gerado pelo script, não versionado inicialmente
+| Índice | Obra | Artista / data | Registro The Met |
+|---|---|---|---|
+| 0 | Campo de Trigo com Ciprestes | Vincent van Gogh, 1889 | [436535](https://www.metmuseum.org/art/collection/search/436535) |
+| 1 | A Grande Onda de Kanagawa | Katsushika Hokusai, c. 1830–32 | [39799](https://www.metmuseum.org/art/collection/search/39799) |
+| 2 | Íris | Vincent van Gogh, 1890 | [436528](https://www.metmuseum.org/art/collection/search/436528) |
+| 3 | A Aula de Dança | Edgar Degas, 1874 | [438817](https://www.metmuseum.org/art/collection/search/438817) |
+| 4 | Madame X | John Singer Sargent, 1883–84 | [12127](https://www.metmuseum.org/art/collection/search/12127) |
+
+Todos os cinco registros foram verificados pela API de coleção aberta do The Met com `isPublicDomain=true` e URL para imagem pública. Os cards atuais usam essas imagens hospedadas pelo museu. Em produção, prefira armazenar as imagens no próprio projeto para reduzir dependências externas.
+
+### Preparação dos cinco alvos (passo indispensável)
+
+No PowerShell, depois de `git pull origin master`:
+
+```powershell
+cd "$env:USERPROFILE\Documents\GitHub\anima-art-3d\anima-art-3d-repo\frontend\poc-mindar"
+python preparar_alvos_galeria.py
 ```
 
-Com `python -m http.server 8000` executado nessa pasta, `http://localhost:8000/` leva à nova versão. No iPhone, inicie um Cloudflare Tunnel HTTPS em outro terminal e use o novo endereço criado.
+O script baixa cinco JPGs para a pasta `alvos-galeria/`, nomeados de **01** a **05**, com as versões exatas da galeria.
 
-Ao iniciar a demo, o modo **Van Gogh** já estará selecionado. A opção **Alvo oficial MindAR** continua disponível para diagnóstico. O arquivo `targets.mind` precisa estar na pasta ou ser selecionado manualmente no celular. Gere-o pelo [compilador oficial](https://hiukim.github.io/mind-ar-js-doc/tools/compile/) a partir da imagem-alvo exata.
+1. Abra o [compilador oficial de alvos MindAR](https://hiukim.github.io/mind-ar-js-doc/tools/compile/) **no computador**.
+2. Selecione os **cinco arquivos JPG, juntos e na ordem 01 → 05**. Não misture com o antigo `targets.mind`.
+3. Clique **Start**, aguarde a compilação e depois **Download**.
+4. Renomeie o resultado `targets.mind` para **`galeria-targets.mind`**.
+5. Coloque-o em `frontend/poc-mindar/galeria-targets.mind` e reinicie/atualize a página `/galeria.html`.
+6. Para disponibilizar o multi-alvo a quem der `git pull`, execute na raiz do repositório:
+
+```powershell
+git add frontend/poc-mindar/galeria-targets.mind
+git commit -m "assets: compila cinco alvos MindAR da galeria"
+git push origin master
+```
+
+Como alternativa **sem commit**, toque **Usar arquivo .mind** na galeria e selecione o `galeria-targets.mind` criado. Nesse modo o arquivo vale apenas para aquela sessão no dispositivo.
+
+**Atenção:** o índice gravado no `.mind` precisa combinar com a tabela acima, senão a HUD mostrará a obra errada. Não altere nem corte os JPGs depois de compilar. O arquivo `targets.mind` antigo continua servindo ao teste de Van Gogh; não deve ser sobrescrito.
+
+### Gerar as narrações naturais em português e inglês
+
+Para criar as oito narrações dos quatro novos quadros, e manter as duas do Van Gogh:
+
+```powershell
+python -m pip install edge-tts
+python generate_narrations.py
+python gerar_audios_galeria.py
+```
+
+Os MP3s são reproduzidos pelo navegador quando disponíveis. Sem esses arquivos, a HUD mostra uma mensagem e oferece a voz do aparelho **apenas como alternativa explícita**. O `edge-tts` utiliza serviço online não oficial; para uso comercial, adotar provedor com suporte e direitos de uso documentados.
+
+### Teste local
+
+```powershell
+cd "$env:USERPROFILE\Documents\GitHub\anima-art-3d\anima-art-3d-repo\frontend\poc-mindar"
+python -m http.server 8000
+```
+
+Abra `http://localhost:8000/` no computador. Para usar a câmera no iPhone, mantenha o servidor aberto, abra **outro terminal** com o Cloudflare Tunnel apontando para `localhost:8000` e acesse o novo endereço HTTPS. Depois clique em **Iniciar experiência** e **Abrir câmera AR**.
+
+**Limitações atuais:** ainda não foram compilados os cinco alvos num único `.mind` nem testados o rastreamento dos quatro quadros novos e os efeitos no iPhone; cada um dos quatro também precisará de um modelo GLB próprio se quisermos o mesmo tipo de relevo do primeiro Van Gogh. Esta etapa entrega a estrutura da galeria e a integração preparada para multi-target, não cinco reconstruções tridimensionais completas.
+
+---
+
+## Rotas disponíveis
+
+- [`index.html`](index.html) → redireciona para a **nova Galeria Virtual AR** (`galeria.html`).
+- [`galeria.html`](galeria.html) → experiência principal, cards animados e câmera para cinco alvos.
+- [`animada.html`](animada.html) → POC isolada com o relevo 3D do Van Gogh e a HUD compacta, mantida para comparação.
+- [`index-tecnico.html`](index-tecnico.html) → teste antigo com esfera dourada e moldura, usado apenas como diagnóstico.
 
 ## HUD compacta — animada.html
 
