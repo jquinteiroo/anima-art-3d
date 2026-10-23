@@ -82,6 +82,8 @@
 
 .target-file-button{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px}
 .target-file-button:hover{border-color:#d9bb8e}
+.target-file-input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}
+.target-file-button:has(+ .target-file-input:focus-visible){outline:2px solid #f6dbac;outline-offset:3px}
 </style>
 </head>
 <body>
@@ -107,7 +109,7 @@
       <div class="gallery-actions">
         <button id="back-home" class="ghost" type="button">← Início</button>
         <label class="ghost target-file-button" for="target-upload">Usar arquivo .mind</label>
-        <input id="target-upload" type="file" accept=".mind,application/octet-stream" class="hide">
+        <input id="target-upload" type="file" accept=".mind,application/octet-stream" class="target-file-input">
         <button id="scan-collection" class="primary" type="button">◉ Abrir câmera AR</button>
       </div>
     </div>
