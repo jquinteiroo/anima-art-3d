@@ -1,6 +1,6 @@
-"""Baixa, em ordem estável, cinco imagens Open Access do Metropolitan Museum.
+"""Baixa, em ordem estável, quatro imagens Open Access do Metropolitan Museum.
 
-Use os CINCO JPGs gerados no compilador oficial do MindAR, nesta ordem.
+Use os QUATRO JPGs gerados no compilador oficial do MindAR, nesta ordem.
 Depois salve o resultado como galeria-targets.mind na pasta poc-mindar.
 Requer internet. Utiliza apenas a biblioteca padrão do Python.
 """
@@ -16,7 +16,6 @@ IMAGES = [
     ("02-hokusai-grande-onda.jpg", "https://images.metmuseum.org/CRDImages/as/web-large/DP141042.jpg"),
     ("03-van-gogh-iris.jpg", "https://images.metmuseum.org/CRDImages/ep/web-large/DP346474.jpg"),
     ("04-degas-aula-danca.jpg", "https://images.metmuseum.org/CRDImages/ep/web-large/DP-20101-001.jpg"),
-    ("05-sargent-madame-x.jpg", "https://images.metmuseum.org/CRDImages/ad/web-large/DP-29006-001.jpg"),
 ]
 
 
@@ -48,9 +47,13 @@ def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     for filename, url in IMAGES:
         download(filename, url)
-    print("\nCinco imagens prontas em:", OUT)
+    print("\nQuatro imagens prontas em:", OUT)
+    legacy = OUT / "05-sargent-madame-x.jpg"
+    if legacy.exists():
+        print("AVISO: arquivo antigo 05-sargent-madame-x.jpg ainda existe.")
+        print("NÃO selecione esse arquivo ao compilar. Use somente os arquivos 01 a 04.")
     print("Abra https://hiukim.github.io/mind-ar-js-doc/tools/compile/")
-    print("Selecione todas as imagens na ordem 01 -> 05, clique Start e depois Download.")
+    print("Selecione as quatro imagens na ordem 01 -> 04, clique Start e depois Download.")
     print("Renomeie targets.mind para galeria-targets.mind e coloque junto de galeria.html.")
     print("Depois: git add frontend/poc-mindar/galeria-targets.mind && git commit && git push")
 
