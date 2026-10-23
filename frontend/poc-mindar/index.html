@@ -1,229 +1,32 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b111b">
-<title>Anima Art 3D | POC MindAR</title>
-<style>
-*{box-sizing:border-box}body{margin:0;background:#0b111b;color:#f0f3f8;font:15px system-ui,-apple-system,Segoe UI,sans-serif}button,select,input{font:inherit}
-#camera{position:fixed;inset:0;z-index:0}#setup{position:relative;z-index:2;max-width:680px;margin:4vh auto 40px;padding:28px;background:#121e2bec;border:1px solid #455970;border-radius:20px;box-shadow:0 20px 80px #0009}
-.tag{font-size:11px;letter-spacing:.15em;color:#e3bd80;font-weight:800}h1{font-size:clamp(34px,6vw,55px);letter-spacing:-.05em;line-height:1.05;margin:15px 0}h1 em{font-family:Georgia,serif;font-weight:400;color:#ecc990}p{line-height:1.6;color:#becbd9}select{display:block;width:100%;background:#203043;color:white;border:1px solid #51657a;border-radius:10px;padding:12px;margin:18px 0}
-.preview{display:flex;align-items:center;gap:17px;background:#18283a;padding:13px;border-radius:12px;margin-bottom:18px}.preview img{width:37%;object-fit:contain;max-height:190px}.preview strong{display:block;font-size:16px}.preview p{font-size:12px;margin:5px 0 10px}.preview a,.instructions a{color:#e3c68f}.instructions{background:#1b2a3c;border:1px dashed #6e8198;padding:15px;border-radius:10px;font-size:13px}.instructions p{margin:8px 0}input{width:100%;font-size:13px}
-button{cursor:pointer}#start{background:#e3bb80;border:0;color:#1b1c1d;font-weight:800;width:100%;border-radius:9px;padding:15px;margin-top:18px}#start:disabled{opacity:.5;cursor:not-allowed}.notice{font-size:12px}
-#ui{position:fixed;inset:0;z-index:3;pointer-events:none}#ui button{pointer-events:auto}#hint{position:absolute;top:13%;left:50%;transform:translateX(-50%);background:#0d1b2bd9;border:1px solid #87959d;padding:12px 16px;border-radius:22px;white-space:nowrap;max-width:94%;font-size:12px}
-#details{position:absolute;bottom:83px;left:16px;right:16px;max-width:430px;padding:16px 18px;background:#0b192be9;border:1px solid #cfa975;border-radius:14px;backdrop-filter:blur(8px)}#details small{color:#e2c18b;letter-spacing:.1em}#details h2{margin:8px 0 4px;font-size:21px}#details p{margin:4px 0 11px;font-size:13px}#audio{padding:9px 12px;background:#304761;color:white;border:1px solid #627c97;border-radius:8px}
-.bar{position:absolute;bottom:16px;left:16px;right:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:12px;text-shadow:0 2px 6px black}.bar button{background:#122437dd;color:white;border:1px solid #9db1c8;border-radius:8px;padding:10px}
-.hide{display:none!important}
-@media(max-width:620px){#setup{margin:15px;padding:22px 18px}.preview img{width:35%}.preview strong{font-size:14px}}
-#camera-preview{display:block;width:100%;max-height:290px;background:#000;object-fit:contain;border-radius:10px;margin-top:10px}#camera-test{display:block;width:100%;background:#263b51;color:#e6eff7;border:1px solid #7189a0;border-radius:9px;padding:12px;margin:10px 0}#camera-test:disabled{opacity:.5}.notice{overflow-wrap:anywhere}
-
-#details{max-height:calc(100dvh - 155px);overflow-y:auto}
-#details .work-intro{font-size:13px;line-height:1.5;color:#dde7f1}
-.work-description{border-top:1px solid #55677b;margin:10px 0 12px;padding-top:10px;pointer-events:auto}
-.work-description summary{list-style-position:inside;cursor:pointer;font-weight:650;color:#f4d29a;font-size:13px;pointer-events:auto}
-.work-description summary:focus-visible{outline:2px solid #f4d29a;outline-offset:3px}
-.work-copy{margin-top:8px;max-height:32vh;overflow-y:auto}
-.work-copy p{font-size:13px;line-height:1.56;margin:0 0 10px;color:#e5edf5}
-.work-source a{color:#f5d19b;pointer-events:auto}
-
-</style>
-<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/","mindar-image-three":"https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"}}</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="refresh" content="0; url=./animada.html?mode=art">
+  <meta name="theme-color" content="#101a27">
+  <title>Anima Art 3D — Abrindo demonstração</title>
+  <style>
+    body{margin:0;min-height:100dvh;background:#101a27;color:#edf1f7;
+      font:16px system-ui,-apple-system,Segoe UI,sans-serif;display:grid;place-items:center}
+    main{max-width:500px;margin:20px;padding:25px;border:1px solid #9b8061;
+      border-radius:18px;background:#182639;text-align:center}
+    h1{margin:0 0 12px;font-size:26px}p{color:#bdccda;line-height:1.6}
+    a{display:inline-block;margin:9px;padding:12px 16px;border-radius:9px;
+      background:#e3c18e;color:#182233;text-decoration:none;font-weight:700}
+    a.alt{background:#273c53;color:#e9f1fc;border:1px solid #64839d}
+  </style>
+  <script>
+    // O endereço raiz deve abrir a experiência mais recente, não a POC de teste.
+    window.location.replace("./animada.html?mode=art");
+  </script>
 </head>
 <body>
-<div id="camera"></div>
-<main id="setup">
-  <div class="tag">✳ ANIMA ART 3D · DEMONSTRAÇÃO</div>
-  <h1>Arte que ganha <em>movimento.</em></h1>
-  <p>Prova de conceito do rastreamento de imagens com MindAR + Three.js. Os efeitos 3D aparecem na tela do celular e acompanham a pintura.</p>
-  <label for="mode">Imagem-alvo para testar</label>
-  <select id="mode">
-    <option value="sample">Alvo oficial do MindAR — funciona imediatamente</option>
-    <option value="art">Van Gogh — obra real (compilar imagem)</option>
-  </select>
-  <div class="preview" id="sample">
-    <img src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.png" alt="Alvo de teste oficial">
-    <div><strong>Teste imediato</strong><p>Abra o alvo em outro monitor ou imprima. Não precisa criar arquivo .mind.</p><a target="_blank" rel="noopener" href="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.png">Abrir imagem-alvo ↗</a></div>
-  </div>
-  <div class="preview hide" id="artwork">
-    <img src="https://images.metmuseum.org/CRDImages/ep/web-large/DP-42549-001.jpg" alt="Campo de Trigo com Ciprestes de Van Gogh">
-    <div><strong>Campo de Trigo com Ciprestes</strong><p>Vincent van Gogh · 1889 · The Met · domínio público</p><a target="_blank" rel="noopener" href="https://images.metmuseum.org/CRDImages/ep/web-large/DP-42549-001.jpg">Abrir pintura exata ↗</a></div>
-  </div>
-  <div id="compile" class="instructions hide">
-    <p>1. Abra a <a target="_blank" rel="noopener" href="https://images.metmuseum.org/CRDImages/ep/web-large/DP-42549-001.jpg">imagem acima</a> e salve-a.</p>
-    <p>2. Envie esta imagem ao <a target="_blank" rel="noopener" href="https://hiukim.github.io/mind-ar-js-doc/tools/compile/">compilador oficial MindAR ↗</a>; clique em Start e Download.</p>
-    <p>3. Para publicar no Netlify, coloque <strong>index.html</strong> e <strong>targets.mind</strong> na mesma pasta. Alternativamente, copie o arquivo .mind para este celular e selecione abaixo.</p>
-    <input id="mind-file" type="file" accept=".mind">
-  </div>
-  <p class="notice" id="status" role="status">Modo oficial pronto para iniciar.</p>
-  <button id="camera-test" type="button">1. Testar câmera (sem AR)</button>
-  <div id="camera-preview-wrap" class="hide">
-    <video id="camera-preview" playsinline autoplay muted></video>
-    <p class="notice">Se você vê a imagem ao vivo, a permissão da câmera está funcionando.</p>
-  </div>
-  <button id="start" type="button">2. Iniciar realidade aumentada ↗</button>
-  <p class="notice">No celular, hospede o site em <b>HTTPS</b> (ex.: Netlify). A câmera permanece no dispositivo e não é enviada ao backend nesta POC.</p>
-</main>
-<div id="ui" class="hide">
-  <div id="hint">⌗ Aponte a câmera para a imagem escolhida</div>
-  <div id="details" class="hide">
-    <small>● ALVO ENCONTRADO · RASTREAMENTO ATIVO</small>
-    <h2 id="title">Campo de Trigo com Ciprestes</h2>
-    <p id="meta">Vincent van Gogh · 1889</p>
-    <p id="work-intro" class="work-intro">Paisagem da Provença pintada em 1889, em que o trigo, os ciprestes e as nuvens parecem ganhar movimento.</p>
-    <details id="about-work" class="work-description">
-      <summary>Conheça a história da obra</summary>
-      <div class="work-copy">
-        <p>Vincent van Gogh pintou <em>Campo de Trigo com Ciprestes</em> em 1889, durante sua estadia em Saint-Rémy, no sul da França. A paisagem reúne elementos característicos da Provença, região que inspirou diversas de suas pinturas.</p>
-        <p>No primeiro plano, o campo de trigo dourado contrasta com as colinas azuladas ao fundo. À direita, os ciprestes escuros se elevam contra um céu de nuvens sinuosas. As pinceladas espessas e curvas transmitem a sensação de vento, luz e movimento.</p>
-        <p>Van Gogh considerava esta tela uma de suas melhores paisagens de verão. A obra original é uma pintura a óleo sobre tela, com 73 × 93,4 cm, pertencente ao Metropolitan Museum of Art, em Nova York.</p>
-        <p class="work-source">Fonte: <a href="https://www.metmuseum.org/art/collection/search/436535" target="_blank" rel="noopener noreferrer">The Metropolitan Museum of Art ↗</a></p>
-      </div>
-    </details>
-    <button id="audio">♫ Ouvir narração</button>
-  </div>
-  <div class="bar"><span id="track-status">Procurando imagem…</span><button id="stop">Encerrar câmera ✕</button></div>
-</div>
-<script>
-// Importamos as bibliotecas apenas ao clicar, para que erros de carregamento fiquem visíveis.
-let THREE=null, MindARThree=null;
-const $ = (id) => document.getElementById(id);
-const sampleSrc = "https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.mind";
-let ar = null, running = false, customUrl = null, starting = false, previewStream=null;
-const isArt = () => $("mode").value === "art";
-function message(t){$("status").textContent=t}
-function refresh(){
- const art=isArt();
- $("sample").classList.toggle("hide",art);
- $("artwork").classList.toggle("hide",!art);
- $("compile").classList.toggle("hide",!art);
- $("start").disabled=starting;
- if (!starting) message(art?
-   (customUrl?"Arquivo .mind selecionado no celular. Pronto para testar.":"Para testar a pintura, publique targets.mind junto do index.html ou selecione-o abaixo."):
-   "Modo oficial pronto. Teste a câmera antes de iniciar a AR.");
-}
-$("mode").addEventListener("change",refresh);
-$("mind-file").addEventListener("change",()=>{
- if(customUrl)URL.revokeObjectURL(customUrl);
- customUrl=null;
- const f=$("mind-file").files[0];
- if(f&&f.name.toLowerCase().endsWith(".mind"))customUrl=URL.createObjectURL(f);
- refresh();
-});
-
-async function stopPreview(){
- if(previewStream) previewStream.getTracks().forEach(t=>t.stop());
- previewStream=null;
- $("camera-preview").srcObject=null;
- $("camera-preview-wrap").classList.add("hide");
- $("camera-test").textContent="1. Testar câmera (sem AR)";
-}
-$("camera-test").addEventListener("click",async()=>{
- if(previewStream){await stopPreview();message("Câmera de teste encerrada.");return}
- if(!window.isSecureContext||!navigator.mediaDevices?.getUserMedia){
-  message("Câmera indisponível: abra um endereço HTTPS no Safari/Chrome, fora do navegador interno de outros aplicativos.");
-  return;
- }
- try{
-  message("Solicitando permissão da câmera...");
-  previewStream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:"environment"}}});
-  $("camera-preview").srcObject=previewStream;
-  $("camera-preview-wrap").classList.remove("hide");
-  $("camera-test").textContent="Fechar teste de câmera";
-  await $("camera-preview").play();
-  message("Câmera funcionando! Feche o teste e inicie a realidade aumentada.");
- }catch(e){
-  await stopPreview();
-  message("Câmera bloqueada ("+(e?.name||"erro")+"): "+(e?.message||"")+". Verifique a permissão do site nas configurações do navegador.");
- }
-});
-function decorate(group,height,art){
- const ring=new THREE.Mesh(new THREE.TorusGeometry(.12,.004,8,64),new THREE.MeshBasicMaterial({color:0xffd697}));
- const core=new THREE.Mesh(new THREE.IcosahedronGeometry(.065,1),new THREE.MeshStandardMaterial({color:0xddae67,metalness:.55,roughness:.36,emissive:0x36200a}));
- const orb=new THREE.Group();orb.add(ring,core);orb.position.set(-.18,.08,.14);group.add(orb);
- const edges=[new THREE.Vector3(-.5,-height/2,.02),new THREE.Vector3(.5,-height/2,.02),new THREE.Vector3(.5,height/2,.02),new THREE.Vector3(-.5,height/2,.02)];
- group.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(edges),new THREE.LineBasicMaterial({color:0xf4c47f,transparent:true,opacity:.75})));
- const canvas=document.createElement("canvas");canvas.width=480;canvas.height=Math.round(height*480);
- const ctx=canvas.getContext("2d"),texture=new THREE.CanvasTexture(canvas);
- const overlay=new THREE.Mesh(new THREE.PlaneGeometry(1,height),new THREE.MeshBasicMaterial({map:texture,transparent:true,depthWrite:false}));
- overlay.position.z=.015;group.add(overlay);
- const tree=new THREE.Group();tree.position.set(.33,-height*.12,.04);
- if(art){for(let i=0;i<4;i++){const mesh=new THREE.Mesh(new THREE.ConeGeometry(.055-i*.008,.20,8),new THREE.MeshStandardMaterial({color:0x274831,transparent:true,opacity:.7}));mesh.position.y=.10+i*.058;tree.add(mesh)}group.add(tree)}
- group.add(new THREE.HemisphereLight(0xffffff,0xd3b077,2));
- return (t)=>{
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  for(let i=0;i<36;i++){const x=(i*137)%canvas.width,y=(i*23)%(canvas.height*.28)+canvas.height*.06;ctx.beginPath();ctx.ellipse(x+Math.sin(t+i)*4,y,15,3,-.4,0,Math.PI*1.4);ctx.strokeStyle="rgba(225,238,255,.27)";ctx.lineWidth=2;ctx.stroke()}
-  for(let i=0;i<36;i++){const x=(i*79)%canvas.width,y=canvas.height*(.76+(i%5)*.035);ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+Math.sin(t*1.5+i)*12,y-14);ctx.strokeStyle="rgba(246,197,78,.45)";ctx.lineWidth=2;ctx.stroke()}
-  texture.needsUpdate=true;orb.rotation.y=t*.5;orb.rotation.z=t*.2;orb.position.z=.1+.12*(1+Math.sin(t*.8));tree.rotation.z=Math.sin(t)*.04;
- };
-}
-async function start(){
- if(starting||running)return;
- if(!window.isSecureContext||!navigator.mediaDevices?.getUserMedia){message("Use HTTPS ou localhost para permitir a câmera.");return}
- starting=true;$("start").disabled=true;
- try{
-  const art=isArt();
-  const source=art?(customUrl||"./targets.mind"):sampleSrc;
-  if(art&&!customUrl){
-    const r=await fetch(source,{cache:"no-store"});
-    const type=(r.headers.get("content-type")||"").toLowerCase();
-    if(!r.ok||type.includes("text/html"))throw new Error("targets.mind não encontrado. No Netlify, publique a pasta contendo index.html e targets.mind lado a lado.");
-  }
-  await stopPreview();
-  message("Carregando bibliotecas MindAR e Three.js...");
-  const [threeModule,mindarModule]=await Promise.all([import("three"),import("mindar-image-three")]);
-  THREE=threeModule;
-  MindARThree=mindarModule.MindARThree;
-  if(typeof MindARThree!=="function")throw new Error("MindAR não carregou. Verifique internet e compatibilidade do navegador.");
-  message("Abrindo câmera e carregando imagem-alvo...");
-  ar=new MindARThree({container:$("camera"),imageTargetSrc:source,uiLoading:"yes",uiScanning:"no"});
-  const anchor=ar.addAnchor(0);
-  const animate=decorate(anchor.group,art?479/599:.552,art);
-  anchor.onTargetFound=()=>{$("details").classList.remove("hide");$("hint").classList.add("hide");$("track-status").textContent="Alvo encontrado — mova o celular lentamente"};
-  anchor.onTargetLost=()=>{$("details").classList.add("hide");$("hint").classList.remove("hide");$("track-status").textContent="Alvo perdido — reenquadre"};
-  await ar.start();
-  const clock=new THREE.Clock();
-  ar.renderer.setAnimationLoop(()=>{animate(clock.getElapsedTime());ar.renderer.render(ar.scene,ar.camera)});
-  $("setup").classList.add("hide");$("ui").classList.remove("hide");
-  $("title").textContent=art?"Campo de Trigo com Ciprestes":"Alvo oficial do MindAR";
-  $("meta").textContent=art?"Vincent van Gogh · 1889 · Óleo sobre tela":"Exemplo técnico de image tracking";
-  $("work-intro").classList.toggle("hide",!art);
-  $("about-work").classList.toggle("hide",!art);
-  $("about-work").open=false;
-  running=true;
- }catch(e){
-  console.error(e);message("Falha ao iniciar AR ("+(e?.name||"erro")+"): "+(e?.message||"Sem detalhes")+". Se a câmera funcionou no teste, revise o .mind e a conexão com as bibliotecas.");
-  try{await ar?.stop()}catch{}
-  ar=null;
- }finally{starting=false;$("start").disabled=false}
-}
-async function stop(){
- if(!ar)return;
- window.speechSynthesis?.cancel();
- $("audio").textContent="♫ Ouvir narração";
- ar.renderer.setAnimationLoop(null);
- try{await ar.stop()}catch(e){console.warn(e)}
- $("camera").replaceChildren();
- ar=null;running=false;$("details").classList.add("hide");
- $("setup").classList.remove("hide");$("ui").classList.add("hide");
- refresh();
-}
-$("start").addEventListener("click",()=>void start());
-$("stop").addEventListener("click",()=>void stop());
-$("audio").addEventListener("click",()=>{
- if(!window.speechSynthesis){alert("Narração não disponível neste navegador.");return}
- const synth=window.speechSynthesis;
- if(synth.speaking){synth.cancel();$("audio").textContent="♫ Ouvir narração";return}
- const text=isArt()?"Você está diante de Campo de Trigo com Ciprestes, uma pintura a óleo sobre tela realizada por Vincent van Gogh em 1889, durante sua estadia em Saint-Rémy, no sul da França. Observe o campo de trigo dourado no primeiro plano. Ao fundo, colinas azuladas encontram um céu cheio de nuvens sinuosas. À direita, altos ciprestes escuros se destacam na paisagem. As pinceladas curvas e espessas sugerem vento e movimento, como se a própria natureza estivesse viva. Van Gogh considerava esta obra uma de suas melhores paisagens de verão. Atualmente, ela pertence ao Metropolitan Museum of Art, em Nova York.":"Esta é uma prova de conceito do Anima Art 3D com rastreamento visual do MindAR e animações em Three JS.";
- const utterance=new SpeechSynthesisUtterance(text);
- utterance.lang="pt-BR";
- utterance.rate=0.96;
- utterance.onstart=()=>{$("audio").textContent="■ Parar narração"};
- utterance.onend=utterance.onerror=()=>{$("audio").textContent="♫ Ouvir narração"};
- synth.speak(utterance);
-});
-window.addEventListener("pagehide",()=>{if(running)void stop();if(previewStream)void stopPreview()});
-refresh();
-</script>
+  <main>
+    <h1>Anima Art 3D</h1>
+    <p>Redirecionando para a experiência atual com pintura em relevo 3D, HUD compacta e áudio em PT-BR/EN.</p>
+    <a href="./animada.html?mode=art">Abrir a experiência 3D</a>
+    <a class="alt" href="./index-tecnico.html">Abrir a POC técnica original</a>
+  </main>
 </body>
 </html>
