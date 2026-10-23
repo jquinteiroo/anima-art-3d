@@ -98,7 +98,7 @@
       <h1>Galeria virtual de <em>realidade aumentada.</em></h1>
       <p>Explore grandes obras da história da arte. Descubra detalhes, ouça suas histórias e veja pinturas ganharem profundidade através da câmera do seu celular.</p>
       <button id="enter" class="primary" type="button">Iniciar experiência <span aria-hidden="true">↗</span></button>
-      <span class="hero-note">05 OBRAS · PT-BR / EN · SEM INSTALAR APLICATIVO</span>
+      <span class="hero-note">04 OBRAS · PT-BR / EN · SEM INSTALAR APLICATIVO</span>
     </div>
   </section>
   <section id="gallery" class="hide" aria-label="Obras da galeria">
@@ -120,7 +120,7 @@
 <div id="ar" class="hide">
   <div class="ar-gradient"></div>
   <div class="scan-header"><div><span>ANIMA ART 3D / MUSEUM</span><strong>Galeria Virtual AR</strong></div><button class="exit" id="exit-ar">Encerrar ×</button></div>
-  <div class="scanner" id="scanner"><div class="corners"></div><p id="scanner-label">Aponte a câmera para uma das cinco obras</p></div>
+  <div class="scanner" id="scanner"><div class="corners"></div><p id="scanner-label">Aponte a câmera para uma das quatro obras</p></div>
   <div id="ar-panel" class="hide" aria-label="Informações da obra reconhecida">
     <div class="panel-title">
       <div class="panel-title-content"><small id="panel-status">● OBRA RECONHECIDA</small><h2 id="panel-name"></h2><p id="panel-meta"></p></div>
@@ -170,12 +170,8 @@ const ARTWORKS=[
  image:"https://images.metmuseum.org/CRDImages/ep/web-large/DP-20101-001.jpg",source:"https://www.metmuseum.org/art/collection/search/438817",
  titles:{"pt-BR":"A Aula de Dança","en-US":"The Dance Class"},
  descriptions:{"pt-BR":"Degas retrata bailarinas e suas mães esperando uma avaliação no antigo espaço de ensaios da Ópera de Paris. O mestre Jules Perrot observa a aluna ao centro enquanto os outros personagens revelam a vida cotidiana do balé.","en-US":"Degas portrays dancers and their mothers awaiting an examination in a rehearsal room of the Paris Opéra. Ballet master Jules Perrot watches a student, while the surrounding figures reveal the everyday world of dance."},
- narration:{"pt-BR":"./audio/dance-class-pt-BR.mp3","en-US":"./audio/dance-class-en-US.mp3"},accent:0xe7b2a5,kind:"Efeito AR"},
- {id:"madame",slug:"madame-x",artist:"John Singer Sargent",year:"1883–84",aspect:208.6/109.9,
- image:"https://images.metmuseum.org/CRDImages/ad/web-large/DP-29006-001.jpg",source:"https://www.metmuseum.org/art/collection/search/12127",
- titles:{"pt-BR":"Madame X","en-US":"Madame X"},
- descriptions:{"pt-BR":"O retrato de Virginie Gautreau provocou controvérsia ao ser apresentado no Salão de Paris de 1884. Sargent enfatizou a elegância e a pose ousada da figura, cujo vestido preto contrasta com a pele clara.","en-US":"This portrait of Virginie Gautreau caused controversy at the Paris Salon in 1884. Sargent emphasized the sitter's striking pose and refined appearance, contrasting her black dress with her pale skin."},
- narration:{"pt-BR":"./audio/madame-x-pt-BR.mp3","en-US":"./audio/madame-x-en-US.mp3"},accent:0xdcbf9b,kind:"Efeito AR"}
+ narration:{"pt-BR":"./audio/dance-class-pt-BR.mp3","en-US":"./audio/dance-class-en-US.mp3"},accent:0xe7b2a5,kind:"Efeito AR"}
+
 ];
 function showView(name){
  $("landing").classList.toggle("hide",name!=="landing");
@@ -225,12 +221,12 @@ $("target-upload").addEventListener("change",()=>{
  const file=$("target-upload").files[0];
  if(!file)return;
  if(!file.name.toLowerCase().endsWith(".mind")){
-  showNotice("Arquivo inválido","Selecione um arquivo .mind compilado com as cinco pinturas, na ordem do acervo.",null);
+  showNotice("Arquivo inválido","Selecione um arquivo .mind compilado com as quatro pinturas, na ordem do acervo.",null);
   return;
  }
  uploadedTargetsURL=URL.createObjectURL(file);
- $("scan-collection").textContent="◉ Abrir câmera com 5 alvos";
- showNotice("Arquivo de rastreamento selecionado","O arquivo .mind foi carregado. Ele precisa conter as cinco obras, na ordem mostrada na galeria. Agora você pode iniciar a câmera.",null);
+ $("scan-collection").textContent="◉ Abrir câmera com 4 alvos";
+ showNotice("Arquivo de rastreamento selecionado","O arquivo .mind foi carregado. Ele precisa conter as quatro obras, na ordem mostrada na galeria. Agora você pode iniciar a câmera.",null);
 });
 function currentWork(){return currentIndex===null?null:ARTWORKS[currentIndex]}
 function currentLanguage(){return $("panel-language").value;}
@@ -377,11 +373,11 @@ async function beginAR(){
  }
  const target=await checkTargetFiles();
  if(!target){
-  showNotice("Preparar os alvos da galeria","Ainda não encontramos galeria-targets.mind. É preciso compilar as cinco imagens na ordem da galeria e salvar esse arquivo junto de galeria.html. Consulte o guia do projeto.",null);
+  showNotice("Preparar os alvos da galeria","Ainda não encontramos galeria-targets.mind. É preciso compilar as quatro imagens na ordem da galeria e salvar esse arquivo junto de galeria.html. Consulte o guia do projeto.",null);
   return;
  }
  if(!target.multi){
-  showNotice("Galeria em modo de demonstração","O arquivo multi-alvo ainda não está instalado. Por enquanto a câmera reconhecerá apenas Campo de Trigo com Ciprestes, que já funciona. Para reconhecer todas as cinco obras automaticamente, gere galeria-targets.mind a partir das cinco imagens, na ordem do acervo.",()=>void startAR(target));
+  showNotice("Galeria em modo de demonstração","O arquivo multi-alvo ainda não está instalado. Por enquanto a câmera reconhecerá apenas Campo de Trigo com Ciprestes, que já funciona. Para reconhecer todas as quatro obras automaticamente, gere galeria-targets.mind a partir das quatro imagens, na ordem do acervo.",()=>void startAR(target));
   return;
  }
  await startAR(target);
@@ -416,7 +412,7 @@ async function startAR(target){
    for(const draw of animations)draw(t);
    ar.renderer.render(ar.scene,ar.camera);
   });
-  $("camera-status").textContent=target.multi?"Buscando as cinco obras...":"Buscando Van Gogh (modo de teste)...";
+  $("camera-status").textContent=target.multi?"Buscando as quatro obras...":"Buscando Van Gogh (modo de teste)...";
  }catch(e){
   console.error(e);
   await endAR();
