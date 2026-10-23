@@ -111,8 +111,9 @@
       <div class="gallery-actions">
         <button id="back-home" class="ghost" type="button">← Início</button>
         <select id="tracking-choice" aria-label="Quais obras reconhecer" title="Escolha quais obras detectar">
-          <option value="novas">Câmera: três obras novas</option>
-          <option value="vangogh">Câmera: Van Gogh 3D</option>
+          <option value="animadas" selected>Câmera: quatro obras animadas</option>
+          <option value="novas">Teste anterior: três obras</option>
+          <option value="vangogh">Teste anterior: Van Gogh GLB</option>
         </select>
         <label class="ghost target-file-button" for="target-upload">Usar arquivo .mind</label>
         <input id="target-upload" type="file" accept=".mind,application/octet-stream" class="target-file-input">
@@ -120,7 +121,7 @@
       </div>
     </div>
     <div id="cards" class="cards"></div>
-    <p class="gallery-hint">Obras de domínio público, imagens do Metropolitan Museum of Art · Experiência WebAR experimental.</p>
+    <p class="gallery-hint">As quatro pinturas já têm reconhecimento e relevo animado preparados. Use a mesma imagem de referência exibida nos cartões. <a href="./estudos/alvos.html" target="_blank" rel="noopener">Abrir imagens para testar ↗</a></p>
   </section>
 </div>
 <div id="ar" class="hide">
@@ -133,7 +134,7 @@
       <select id="panel-language" class="lang" aria-label="Idioma da narração"><option value="pt-BR">PT</option><option value="en-US">EN</option></select>
       <button id="panel-collapse" class="panel-btn" aria-label="Recolher painel">⌄</button>
     </div>
-    <div id="panel-actions"><button id="panel-info" class="panel-btn">ⓘ História</button><button id="panel-play" class="panel-btn">♫ Ouvir</button><button id="panel-hide" class="panel-btn">Ocultar</button></div>
+    <div id="panel-actions"><button id="panel-info" class="panel-btn">ⓘ História</button><button id="panel-play" class="panel-btn">♫ Ouvir</button><button id="panel-motion" class="panel-btn hide" aria-pressed="false">Ⅱ Pausar</button><button id="panel-hide" class="panel-btn">Ocultar</button></div>
     <div id="panel-extended" class="hide">
       <p id="panel-description"></p>
       <p id="ar-note"></p>
@@ -156,6 +157,8 @@ let THREE=null,MindARThree=null,GLTFLoader=null,ar=null,started=false,starting=f
 let currentIndex=null,compactTimeout=null,currentAudio=null,oldSpeech=null,scanningMode="multi";
 let uploadedTargetsURL=null;
 let uploadedTargetKind=null;
+let projectionSession=null,projectionGeneration=0;
+let motionPaused=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const $=id=>document.getElementById(id);
 const ARTWORKS=[
  {id:"vangogh",slug:"van-gogh",artist:"Vincent van Gogh",year:"1889",aspect:73.2/93.4,
@@ -192,11 +195,11 @@ function renderCards(){
   const card=document.createElement("article");
   card.className="art-card"+(index===0?" featured":"");
   const artImage=document.createElement("div");artImage.className="art-image";
-  const image=document.createElement("img");image.src=work.image;image.alt=work.titles["pt-BR"];image.loading=index<2?"eager":"lazy";image.referrerPolicy="no-referrer";
-  const chip=document.createElement("span");chip.className="art-chip";chip.textContent=index===0?"OBRA PRINCIPAL · 3D":"ACERVO · "+String(index+1).padStart(2,"0");
+  const image=document.createElement("img");image.src='./estudos/assets/'+['campo.jpg','onda.jpg','iris.jpg','danca.jpg'][index];image.alt=work.titles["pt-BR"];image.loading=index<2?"eager":"lazy";
+  const chip=document.createElement("span");chip.className="art-chip";chip.textContent=index===0?"OBRA PRINCIPAL · 2.5D":"ACERVO · "+String(index+1).padStart(2,"0");
   artImage.append(image,chip);
   const caption=document.createElement("div");caption.className="art-content";
-  const tag=document.createElement("small");tag.textContent=work.kind;
+  const tag=document.createElement("small");tag.textContent='Relevo animado · 2.5D';
   const h2=document.createElement("h2");h2.textContent=work.titles["pt-BR"];
   const p=document.createElement("p");p.textContent=work.artist+" · "+work.year;
   const button=document.createElement("button");button.type="button";button.textContent="Conhecer a obra ↗";
@@ -208,7 +211,7 @@ function renderCards(){
 function showArtworkDetails(index){
  const work=ARTWORKS[index];
  $("message-title").textContent=work.titles["pt-BR"];
- $("message-copy").textContent=work.descriptions["pt-BR"]+" \n\nPara vê-la em realidade aumentada, aponte a câmera para essa imagem após preparar o arquivo multi-alvo.";
+ $("message-copy").textContent=work.descriptions["pt-BR"]+" \n\nNo modo de quatro obras animadas, basta abrir a câmera e apontar para a imagem de referência. Os alvos já estão incluídos.";
  $("message-continue").textContent="Abrir câmera AR";
  $("message-continue").onclick=()=>{$("message-overlay").classList.add("hide");void beginAR();};
  $("message-overlay").classList.remove("hide");
@@ -251,15 +254,26 @@ $("target-upload").addEventListener("change",async()=>{
   showNotice("Arquivo incompatível","O arquivo não contém 1, 3 ou 4 alvos em formato MindAR v2. Reveja a compilação.",null);
   return;
  }
- uploadedTargetKind=n===4?"completa":n===3?"novas":"vangogh";
+ uploadedTargetKind=n===4?($("tracking-choice").value==="animadas"?"animadas":"completa"):n===3?"novas":"vangogh";
  uploadedTargetsURL=URL.createObjectURL(file);
  $("scan-collection").textContent="◉ Abrir câmera AR";
- const labels={novas:"Grande Onda → Aula de Dança → Íris",vangogh:"Van Gogh",completa:"Van Gogh → Grande Onda → Íris → Aula de Dança"};
+ const labels={animadas:"Grande Onda → Aula de Dança → Íris → Campo de Trigo",novas:"Grande Onda → Aula de Dança → Íris",vangogh:"Van Gogh",completa:"Van Gogh → Grande Onda → Íris → Aula de Dança"};
  showNotice("Arquivo de rastreamento selecionado",
   "Detectamos "+n+" alvo(s). Ordem esperada: "+labels[uploadedTargetKind]+". "+
   "Se o arquivo foi compilado em ordem diferente, a HUD precisará ser ajustada.",null);
 });
 function currentWork(){return currentIndex===null?null:ARTWORKS[currentIndex]}
+$("tracking-choice").addEventListener("change",()=>{
+ if(uploadedTargetsURL)URL.revokeObjectURL(uploadedTargetsURL);
+ uploadedTargetsURL=null;uploadedTargetKind=null;$("target-upload").value="";
+});
+function syncMotionButton(){
+ const pt=currentLanguage()==="pt-BR";
+ $("panel-motion").classList.toggle("hide",!projectionSession);
+ $("panel-motion").textContent=motionPaused?(pt?"▶ Retomar":"▶ Resume"):(pt?"Ⅱ Pausar":"Ⅱ Pause");
+ $("panel-motion").setAttribute("aria-pressed",String(motionPaused));
+}
+$("panel-motion").addEventListener("click",()=>{motionPaused=!motionPaused;syncMotionButton();});
 function currentLanguage(){return $("panel-language").value;}
 function stopNarration(){
  if(currentAudio){currentAudio.pause();currentAudio.src="";currentAudio=null;}
@@ -278,7 +292,10 @@ function fillPanel(index){
  $("panel-hide").textContent=pt?"Ocultar":"Hide";
  $("panel-source").href=work.source;
  $("ar-mini").textContent=pt?"ⓘ Informações":"ⓘ Details";
- $("ar-note").textContent=index===0
+ syncMotionButton();
+ $("ar-note").textContent=projectionSession
+  ?(pt?"Relevo 2.5D animado. Mova o celular suavemente para observar a profundidade.":"Animated 2.5D relief. Move your phone gently to see the depth.")
+  :index===0
   ?(pt?"Relevo 3D experimental da obra, vinculado ao rastreamento da imagem.":"Experimental 3D relief anchored to the painting.")
   :(pt?"Efeito visual AR experimental; a reconstrução 3D individual desta obra está em desenvolvimento.":"Experimental AR effect; a dedicated 3D model for this artwork is still in development.");
  $("ar-panel").classList.remove("hide","compact");
@@ -393,7 +410,12 @@ async function checkTargetFiles(){
  };
  if(uploadedTargetsURL){
   const kind=uploadedTargetKind||"novas";
-  return {path:uploadedTargetsURL,indices:kind==="completa"?[0,1,2,3]:kind==="vangogh"?[0]:[1,3,2],mode:kind};
+  return {path:uploadedTargetsURL,indices:kind==="animadas"?[1,3,2,0]:kind==="completa"?[0,1,2,3]:kind==="vangogh"?[0]:[1,3,2],mode:kind};
+ }
+ // O arquivo dos estudos usa a ordem onda, dança, íris, campo.
+ if($("tracking-choice").value==="animadas"){
+  if(await head("./estudos/assets/obras.mind"))return {path:"./estudos/assets/obras.mind",indices:[1,3,2,0],mode:"animadas"};
+  return null;
  }
  // O modo de Van Gogh usa a imagem original compilada separadamente.
  if($("tracking-choice").value==="vangogh"){
@@ -418,13 +440,51 @@ async function beginAR(){
  }
  const target=await checkTargetFiles();
  if(!target){
-  const missing=$("tracking-choice").value==="vangogh"?"targets.mind (Van Gogh)":"galeria-targets-novas.mind";
+  const missing=$("tracking-choice").value==="animadas"?"estudos/assets/obras.mind":$("tracking-choice").value==="vangogh"?"targets.mind (Van Gogh)":"galeria-targets-novas.mind";
   showNotice("Arquivo de reconhecimento ausente","Não encontramos "+missing+". Verifique se você iniciou o servidor Python na pasta poc-mindar e atualizou o git pull.",null);
   return;
  }
  await startAR(target);
 }
+async function startAnimatedAR(target){
+ if(starting||started)return;
+ starting=true;
+ const generation=++projectionGeneration;
+ showView('ar');$('scanner').classList.remove('hide');
+ $('scanner-label').textContent='Aponte para qualquer uma das quatro obras';
+ $('camera-status').textContent='Preparando as quatro projeções…';
+ try{
+  const [mindar,factory,catalog,lifecycle]=await Promise.all([
+   import('mindar-image-three'),import('./estudos/art-scene.mjs'),
+   import('./estudos/fields.mjs'),import('./estudos/projection-session.mjs')
+  ]);
+  if(generation!==projectionGeneration)return;
+  const session=new lifecycle.ProjectionSession({
+   MindARThree:mindar.MindARThree,createArtwork:factory.createArtwork,
+   entries:target.indices.map((catalogIndex,targetIndex)=>({targetIndex,catalogIndex,work:catalog.WORKS[targetIndex]})),
+   container:$('camera'),targetPath:target.path,
+   onFound:index=>{
+    if(generation!==projectionGeneration)return;
+    $('scanner').classList.add('hide');
+    $('camera-status').textContent='● '+ARTWORKS[index].titles[currentLanguage()];
+    fillPanel(index);
+   },
+   onLost:index=>{if(generation===projectionGeneration)hideArtwork(index);},
+   onStatus:text=>{if(generation===projectionGeneration)$('camera-status').textContent=text;},
+   getSettings:()=>({motion:.8,depth:1,paused:motionPaused||document.hidden})
+  });
+  projectionSession=session;
+  await session.start();
+  if(generation!==projectionGeneration)return;
+  started=true;
+ }catch(error){
+  if(generation!==projectionGeneration)return;
+  console.error(error);await endAR();
+  showNotice('Não foi possível iniciar as projeções',String(error?.message||error),null);
+ }finally{if(generation===projectionGeneration)starting=false;}
+}
 async function startAR(target){
+ if(target.mode==="animadas")return startAnimatedAR(target);
  if(starting||started)return;starting=true;scanningMode=target.indices.length>1?"multi":"single";
  showView("ar");$("scanner").classList.remove("hide");$("camera-status").textContent="Iniciando rastreamento MindAR...";
  try{
@@ -467,6 +527,10 @@ async function startAR(target){
  }finally{starting=false;}
 }
 async function endAR(){
+ projectionGeneration++;
+ const oldProjection=projectionSession;projectionSession=null;
+ if(oldProjection){try{await oldProjection.stop();}catch(error){console.warn(error);}}
+ starting=false;
  clearTimeout(compactTimeout);
  stopNarration();currentIndex=null;
  if(ar){
@@ -480,7 +544,7 @@ async function endAR(){
 $("exit-ar").addEventListener("click",()=>void endAR());
 window.addEventListener("pagehide",()=>{
  stopNarration();
- if(ar)void endAR();
+ if(ar||projectionSession||starting)void endAR();
  if(uploadedTargetsURL)URL.revokeObjectURL(uploadedTargetsURL);
 });
 </script>
