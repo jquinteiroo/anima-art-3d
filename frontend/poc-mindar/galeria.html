@@ -223,25 +223,41 @@ $("message-cancel").addEventListener("click",()=>{$("message-overlay").classList
 $("enter").addEventListener("click",()=>{renderCards();showView("gallery");});
 $("back-home").addEventListener("click",()=>showView("landing"));
 $("scan-collection").addEventListener("click",()=>void beginAR());
-$("target-upload").addEventListener("change",()=>{
+async function detectMindTargets(file){
+ // No MindAR v2 o campo msgpack "dataList" contém um array fix-size.
+ // Lemos só o cabeçalho, sem carregar o arquivo inteiro em memória.
+ const bytes=new Uint8Array(await file.slice(0,96).arrayBuffer());
+ const key=[100,97,116,97,76,105,115,116]; // "dataList"
+ for(let i=0;i<bytes.length-key.length-1;i++){
+  if(!key.every((v,j)=>bytes[i+j]===v))continue;
+  const first=bytes[i+key.length];
+  if(first>=0x90&&first<=0x9f)return first-0x90;
+  if(first===0xdc&&i+key.length+2<bytes.length)return(bytes[i+key.length+1]<<8)|bytes[i+key.length+2];
+ }
+ return null;
+}
+$("target-upload").addEventListener("change",async()=>{
  if(uploadedTargetsURL){URL.revokeObjectURL(uploadedTargetsURL);uploadedTargetsURL=null;}
  const file=$("target-upload").files[0];
  if(!file)return;
  if(!file.name.toLowerCase().endsWith(".mind")){
-  showNotice("Arquivo inválido","Selecione um arquivo .mind compilado com as quatro pinturas, na ordem do acervo.",null);
+  showNotice("Arquivo inválido","Selecione um arquivo .mind exportado pelo compilador MindAR.",null);
   return;
  }
+ let n=null;
+ try{n=await detectMindTargets(file)}catch(error){console.warn(error)}
+ if(![1,3,4].includes(n)){
+  uploadedTargetKind=null;
+  showNotice("Arquivo incompatível","O arquivo não contém 1, 3 ou 4 alvos em formato MindAR v2. Reveja a compilação.",null);
+  return;
+ }
+ uploadedTargetKind=n===4?"completa":n===3?"novas":"vangogh";
  uploadedTargetsURL=URL.createObjectURL(file);
- // Pelo nome do arquivo, identifica a ordem dos alvos esperada.
- // Um .mind genérico segue o conjunto selecionado pelo visitante.
- uploadedTargetKind=file.name==="galeria-targets-novas.mind"?"novas":
-  file.name==="galeria-targets.mind"?"completa":
-  file.name==="targets.mind"?"vangogh":$("tracking-choice").value;
  $("scan-collection").textContent="◉ Abrir câmera AR";
  const labels={novas:"Grande Onda → Aula de Dança → Íris",vangogh:"Van Gogh",completa:"Van Gogh → Grande Onda → Íris → Aula de Dança"};
  showNotice("Arquivo de rastreamento selecionado",
-  "Arquivo carregado. Ordem esperada: "+labels[uploadedTargetKind]+". "+
-  "Se o arquivo foi compilado com uma ordem diferente, a HUD também será diferente.",null);
+  "Detectamos "+n+" alvo(s). Ordem esperada: "+labels[uploadedTargetKind]+". "+
+  "Se o arquivo foi compilado em ordem diferente, a HUD precisará ser ajustada.",null);
 });
 function currentWork(){return currentIndex===null?null:ARTWORKS[currentIndex]}
 function currentLanguage(){return $("panel-language").value;}
@@ -409,7 +425,7 @@ async function beginAR(){
  await startAR(target);
 }
 async function startAR(target){
- if(starting||started)return;starting=true;scanningMode=target.multi?"multi":"single";
+ if(starting||started)return;starting=true;scanningMode=target.indices.length>1?"multi":"single";
  showView("ar");$("scanner").classList.remove("hide");$("camera-status").textContent="Iniciando rastreamento MindAR...";
  try{
   const modules=await Promise.all([import("three"),import("mindar-image-three"),import("three/addons/loaders/GLTFLoader.js")]);
