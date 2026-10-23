@@ -79,6 +79,9 @@
 @media(max-width:950px){.cards{grid-template-columns:repeat(6,minmax(0,1fr))}.art-card{grid-column:span 3}.art-card.featured{grid-column:span 6;grid-row:span 1}.featured .art-image{height:380px}.gallery-top{align-items:start;flex-direction:column}}
 @media(max-width:560px){#gallery{padding:80px 14px 65px}.cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.art-card{grid-column:span 1}.art-card.featured{grid-column:span 2}.art-image{height:172px}.featured .art-image{height:300px}.art-content{padding:12px}.art-content h2{font-size:17px}.art-content p{font-size:11px}.hero-art{opacity:.19}.hero h1{font-size:clamp(44px,12vw,68px)}.gallery-actions{width:100%}.gallery-actions button{flex:1}.panel-title h2{font-size:18px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+.target-file-button{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px}
+.target-file-button:hover{border-color:#d9bb8e}
 </style>
 </head>
 <body>
@@ -103,6 +106,8 @@
       </div>
       <div class="gallery-actions">
         <button id="back-home" class="ghost" type="button">← Início</button>
+        <label class="ghost target-file-button" for="target-upload">Usar arquivo .mind</label>
+        <input id="target-upload" type="file" accept=".mind,application/octet-stream" class="hide">
         <button id="scan-collection" class="primary" type="button">◉ Abrir câmera AR</button>
       </div>
     </div>
@@ -141,6 +146,7 @@
 <script>
 let THREE=null,MindARThree=null,GLTFLoader=null,ar=null,started=false,starting=false,frameHandle=null;
 let currentIndex=null,compactTimeout=null,currentAudio=null,oldSpeech=null,scanningMode="multi";
+let uploadedTargetsURL=null;
 const $=id=>document.getElementById(id);
 const ARTWORKS=[
  {id:"vangogh",slug:"van-gogh",artist:"Vincent van Gogh",year:"1889",aspect:73.2/93.4,
@@ -212,6 +218,18 @@ $("message-cancel").addEventListener("click",()=>{$("message-overlay").classList
 $("enter").addEventListener("click",()=>{renderCards();showView("gallery");});
 $("back-home").addEventListener("click",()=>showView("landing"));
 $("scan-collection").addEventListener("click",()=>void beginAR());
+$("target-upload").addEventListener("change",()=>{
+ if(uploadedTargetsURL){URL.revokeObjectURL(uploadedTargetsURL);uploadedTargetsURL=null;}
+ const file=$("target-upload").files[0];
+ if(!file)return;
+ if(!file.name.toLowerCase().endsWith(".mind")){
+  showNotice("Arquivo inválido","Selecione um arquivo .mind compilado com as cinco pinturas, na ordem do acervo.",null);
+  return;
+ }
+ uploadedTargetsURL=URL.createObjectURL(file);
+ $("scan-collection").textContent="◉ Abrir câmera com 5 alvos";
+ showNotice("Arquivo de rastreamento selecionado","O arquivo .mind foi carregado. Ele precisa conter as cinco obras, na ordem mostrada na galeria. Agora você pode iniciar a câmera.",null);
+});
 function currentWork(){return currentIndex===null?null:ARTWORKS[currentIndex]}
 function currentLanguage(){return $("panel-language").value;}
 function stopNarration(){
@@ -340,6 +358,7 @@ async function addVanGoghRelief(group,height){
  const light=new THREE.DirectionalLight(0xffffff,1.3);light.position.set(-.3,.6,1.3);group.add(light);
 }
 async function checkTargetFiles(){
+ if(uploadedTargetsURL)return {path:uploadedTargetsURL,multi:true};
  const head=async path=>{
   try{const r=await fetch(path,{method:"HEAD",cache:"no-store"});return r.ok&&!(r.headers.get("content-type")||"").includes("text/html");}
   catch{return false;}
@@ -414,7 +433,11 @@ async function endAR(){
  $("ar-panel").classList.add("hide");$("ar-mini").classList.add("hide");
 }
 $("exit-ar").addEventListener("click",()=>void endAR());
-window.addEventListener("pagehide",()=>{stopNarration();if(ar)void endAR();});
+window.addEventListener("pagehide",()=>{
+ stopNarration();
+ if(ar)void endAR();
+ if(uploadedTargetsURL)URL.revokeObjectURL(uploadedTargetsURL);
+});
 </script>
 </body>
 </html>
