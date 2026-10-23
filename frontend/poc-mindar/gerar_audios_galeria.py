@@ -1,4 +1,4 @@
-"""Gera narrações em PT-BR e EN para as 5 obras da galeria.
+"""Gera narrações em PT-BR e EN para as 3 novas obras da galeria.
 
 Usa edge-tts (serviço online da Microsoft via implementação não oficial);
 os MP3 são reproduzidos localmente, sem voz robótica do Safari.
@@ -23,10 +23,7 @@ SCRIPTS = {
         "pt-BR": "A Aula de Dança foi pintada por Edgar Degas em 1874. A cena mostra bailarinas e suas mães aguardando uma avaliação na antiga Ópera de Paris. No centro, uma jovem dança enquanto o mestre Jules Perrot observa. Degas revela o mundo do balé por meio de gestos espontâneos e uma composição que parece capturar um momento cotidiano.",
         "en-US": "The Dance Class was painted by Edgar Degas in 1874. Dancers and their mothers await an examination at the Paris Opéra. In the center, a young ballerina performs while master Jules Perrot watches. Through spontaneous gestures, Degas captures an intimate scene from the everyday world of ballet.",
     },
-    "madame-x": {
-        "pt-BR": "Madame X é um retrato pintado por John Singer Sargent entre 1883 e 1884. Sua modelo, Virginie Gautreau, era conhecida por sua presença marcante na sociedade de Paris. A obra provocou controvérsia ao ser exibida no Salão de 1884. O vestido preto e a postura elegante fazem deste retrato uma das imagens mais conhecidas do artista.",
-        "en-US": "Madame X is a portrait painted by John Singer Sargent between 1883 and 1884. His subject, Virginie Gautreau, was a well-known figure in Parisian society. The painting caused controversy when exhibited at the Paris Salon of 1884. Her black dress and striking pose helped make it one of Sargent's most famous portraits.",
-    },
+
 }
 
 
