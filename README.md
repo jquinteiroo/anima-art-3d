@@ -8,6 +8,20 @@ Projeto de estágio obrigatório do curso de **Ciência da Computação — PUC 
 
 ---
 
+## Galeria Virtual de Realidade Aumentada — MVP de acervo
+
+A aplicação agora tem uma página inicial de galeria: **[`frontend/poc-mindar/galeria.html`](frontend/poc-mindar/galeria.html)**. A entrada (`frontend/poc-mindar/index.html`) direciona automaticamente para essa experiência, que exibe a abertura **“Galeria virtual de realidade aumentada”**, um botão **Iniciar experiência** e uma animação de entrada dos quadros.
+
+A galeria conta com cinco obras públicas do Metropolitan Museum of Art: `Campo de Trigo com Ciprestes` (Van Gogh, 1889), `A Grande Onda de Kanagawa` (Hokusai, c. 1830–32), `Íris` (Van Gogh, 1890), `A Aula de Dança` (Degas, 1874) e `Madame X` (Sargent, 1883–84).
+
+**Funcionalidades implementadas:** catálogo com fichas, câmera WebAR MindAR preparada para cinco alvos, HUD contextual à obra reconhecida, escolha PT-BR/EN, narrações MP3 opcionais e efeitos visuais. A obra `Campo de Trigo com Ciprestes` mantém o relevo GLB otimizado; os demais quadros têm efeitos AR iniciais, **ainda sem GLBs próprios**.
+
+**Próximo passo técnico obrigatório:** compilar `galeria-targets.mind` com as cinco imagens, na ordem cadastrada, para habilitar e testar o reconhecimento simultâneo. Sem esse arquivo, a galeria recorre ao `targets.mind` antigo de Van Gogh em modo de demonstração. O script [`preparar_alvos_galeria.py`](frontend/poc-mindar/preparar_alvos_galeria.py) automatiza o download das cinco imagens públicas; o compilador oficial MindAR cria o arquivo binário multi-alvo. Instruções completas em [`frontend/poc-mindar/README.md`](frontend/poc-mindar/README.md).
+
+**Validação:** interface e JavaScript inspecionados estaticamente. O novo fluxo multi-alvo ainda aguarda teste físico com a câmera do celular.
+
+---
+
 ## Demonstração WebAR — MindAR + Three.js
 
 A primeira prova de conceito do rastreamento AR está disponível em **[frontend/poc-mindar](frontend/poc-mindar/README.md)**.
